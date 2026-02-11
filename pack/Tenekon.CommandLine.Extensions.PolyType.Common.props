@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <!-- <TenekonCommandLineExtensionsPolyTypeSourceGeneratorAttributesOnly Condition="'$(TenekonCommandLineExtensionsPolyTypeAttributesOnly)' == ''">false</TenekonCommandLineExtensionsPolyTypeSourceGenerator> -->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- <CompilerVisibleProperty Include="TenekonCommandLineExtensionsPolyTypeSourceGeneratorAttributesOnly"/> -->
+    </ItemGroup>
+</Project>

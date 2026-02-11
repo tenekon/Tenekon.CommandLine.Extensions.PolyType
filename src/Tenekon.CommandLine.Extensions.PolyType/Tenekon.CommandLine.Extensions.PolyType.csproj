@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>preview</LangVersion>
+        <!-- Package Properties -->
+        <IsPackable>true</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageId>Tenekon.CommandLine.Extensions.PolyType</PackageId>
+        <Version>0.0.1-alpha.1</Version>
+        <Authors>Tenekon authors and contributors</Authors>
+        <Company>Tenekon</Company>
+        <Description>An extension to System.CommandLine using PolyType: attribute-driven CLI definitions with fast, strongly-typed (trimming/aot-friendly) binding.</Description>
+        <PackageTags>command-line;cli;console;System.CommandLine;polytype;dotmake;dotmake-commandline;DotMake.CommandLine;attributes;parsing;command;argument;option;generator</PackageTags>
+        <PackageReleaseNotes>Initial public release. Attribute-based command definitions for System.CommandLine powered by PolyType (no reflection), with strongly-typed binding, DI support, and command composition.</PackageReleaseNotes>
+        <PackageProjectUrl>https://github.com/tenekon/Tenekon.CommandLine.Extensions.PolyType</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/tenekon/Tenekon.CommandLine.Extensions.PolyType</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.jpg</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IsExternalInit" Version="1.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolyType" Version="1.1.1"/>
+        <PackageReference Include="System.CommandLine" Version="2.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3"/>
+        <PackageReference Include="Tenekon.MethodOverloads.SourceGenerator" Version="0.0.5"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj"
+                          PrivateAssets="all"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\bin\$(Configuration)\netstandard2.0\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.dll"
+                 Pack="true"
+                 PackagePath="analyzers/dotnet/cs"
+                 Visible="false"/>
+        <Content Include="..\..\README.md" Pack="true" PackagePath="" Visible="false"/>
+        <Content Include="..\..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
+        <Content Include="..\..\res\icon.jpg" Pack="true" PackagePath="" Visible="false"/>
+        <Content Include="..\..\pack\build\Tenekon.CommandLine.Extensions.PolyType.props" Pack="true" PackagePath="build/" Visible="false"/>
+        <Content Include="..\..\pack\buildTransitive\Tenekon.CommandLine.Extensions.PolyType.props" Pack="true" PackagePath="buildTransitive/" Visible="false"/>
+        <Content Include="..\..\pack\Tenekon.CommandLine.Extensions.PolyType.Common.props" Pack="true" PackagePath="" Visible="false"/>
+    </ItemGroup>
+
+</Project>

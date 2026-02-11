@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!--
+            NU5128: The project targets netstandard2.0, so NuGet creates a dependency group for that TFM.
+            We include lib/netstandard2.0/_._ to satisfy NuGet's expected layout for analyzer-only packages.
+
+            RS2008: We test diagnostics API ourselves.
+        -->
+        <NoWarn>RS2008</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="DiagnosticsTests.Diagnostics_HaveNoChanges.*txt">
+            <DependentUpon>DiagnosticsTests.cs</DependentUpon>
+        </None>
+        <None Update="PublicApiTests.PublicApi_HasNoChanges.*txt">
+            <DependentUpon>PublicApiTests.cs</DependentUpon>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageReference Include="PolyType" Version="1.1.1"/>
+        <PackageReference Include="Shouldly" Version="4.3.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="PublicApiGenerator" Version="11.4.6"/>
+        <PackageReference Include="Verify.XunitV3" Version="31.12.5"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType\Tenekon.CommandLine.Extensions.PolyType.csproj"/>
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj"/>
+    </ItemGroup>
+
+</Project>

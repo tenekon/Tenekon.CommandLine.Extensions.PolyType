@@ -1,0 +1,288 @@
+﻿[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
+namespace Tenekon.CommandLine.Extensions.PolyType
+{
+    public enum ArgumentArity
+    {
+        Zero = 0,
+        ZeroOrOne = 1,
+        ExactlyOne = 2,
+        ZeroOrMore = 3,
+        OneOrMore = 4,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple=false, Inherited=true)]
+    public sealed class ArgumentSpecAttribute : System.Attribute
+    {
+        public ArgumentSpecAttribute() { }
+        public string[]? AllowedValues { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.ArgumentArity Arity { get; set; }
+        public string? Description { get; set; }
+        public string? HelpName { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+        public bool Required { get; set; }
+        public string? ValidationMessage { get; set; }
+        public string? ValidationPattern { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.ValidationRules ValidationRules { get; set; }
+    }
+    public sealed class CommandInvocationConfiguration
+    {
+        public CommandInvocationConfiguration() { }
+        public System.IServiceProvider? ServiceProvider { get; set; }
+    }
+    public sealed class CommandLineApp
+    {
+        public Tenekon.CommandLine.Extensions.PolyType.CommandLineResult Parse(string[]? args = null) { }
+        public int Run(string[]? args = null) { }
+        public int Run(string[]? args, Tenekon.CommandLine.Extensions.PolyType.CommandInvocationConfiguration? config) { }
+        public System.Threading.Tasks.Task<int> RunAsync(string[]? args = null, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<int> RunAsync(string[]? args, Tenekon.CommandLine.Extensions.PolyType.CommandInvocationConfiguration? config, System.Threading.CancellationToken cancellationToken = default) { }
+        [Tenekon.MethodOverloads.SourceGenerator.GenerateOverloads(Begin="settings")]
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, System.IServiceProvider? serviceProvider) { }
+        [Tenekon.MethodOverloads.SourceGenerator.GenerateOverloads(Begin="settings")]
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, System.IServiceProvider? serviceProvider) { }
+        [Tenekon.MethodOverloads.SourceGenerator.GenerateOverloads]
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, System.IServiceProvider? serviceProvider, PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+            where TCommand : PolyType.IShapeable<TCommand> { }
+    }
+    public sealed class CommandLineContext
+    {
+        public System.CommandLine.ParseResult ParseResult { get; }
+        public bool IsEmptyCommand() { }
+        public void ShowHelp() { }
+        public void ShowHierarchy() { }
+        public void ShowValues() { }
+    }
+    public sealed class CommandLineResult
+    {
+        public System.CommandLine.ParseResult ParseResult { get; }
+        public object Bind(System.Type definitionType, bool returnEmpty = false) { }
+        public TDefinition Bind<TDefinition>(bool returnEmpty = false) { }
+        public void Bind<TCommand, TTarget>(TTarget instance) { }
+        public object[] BindAll() { }
+        public object BindCalled() { }
+        public bool Contains(System.Type definitionType) { }
+        public bool Contains<TDefinition>() { }
+        public bool IsCalled(System.Type definitionType) { }
+        public bool IsCalled<TDefinition>() { }
+        public int Run() { }
+        public int Run(Tenekon.CommandLine.Extensions.PolyType.CommandInvocationConfiguration? config) { }
+        public System.Threading.Tasks.Task<int> RunAsync(System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<int> RunAsync(Tenekon.CommandLine.Extensions.PolyType.CommandInvocationConfiguration? config, System.Threading.CancellationToken cancellationToken = default) { }
+        public bool TryBindCalled(out object? value) { }
+        public bool TryGetBinder(System.Type commandType, System.Type targetType, out System.Action<object, System.CommandLine.ParseResult>? binder) { }
+        public bool TryGetCalledType(out System.Type? value) { }
+    }
+    public sealed class CommandLineSettings
+    {
+        public CommandLineSettings() { }
+        public bool EnableDefaultExceptionHandler { get; set; }
+        public bool EnableDiagramDirective { get; set; }
+        public bool EnableEnvironmentVariablesDirective { get; set; }
+        public bool EnablePosixBundling { get; set; }
+        public bool EnableSuggestDirective { get; set; }
+        public System.IO.TextWriter Error { get; set; }
+        public System.IO.TextWriter Output { get; set; }
+        public System.CommandLine.Parsing.TryReplaceToken? ResponseFileTokenReplacer { get; set; }
+        public bool ShowHelpOnEmptyCommand { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class CommandSpecAttribute : System.Attribute
+    {
+        public CommandSpecAttribute() { }
+        public string? Alias { get; set; }
+        public string[]? Aliases { get; set; }
+        public System.Type[]? Children { get; set; }
+        public string? Description { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.NameAutoGenerate NameAutoGenerate { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.NameCasingConvention NameCasingConvention { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.NamePrefixConvention NamePrefixConvention { get; set; }
+        public int Order { get; set; }
+        public System.Type? Parent { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.NameAutoGenerate ShortFormAutoGenerate { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.NamePrefixConvention ShortFormPrefixConvention { get; set; }
+        public bool TreatUnmatchedTokensAsErrors { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple=false, Inherited=true)]
+    public sealed class DirectiveSpecAttribute : System.Attribute
+    {
+        public DirectiveSpecAttribute() { }
+        public string? Description { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+    }
+    public static class MethodOverloads
+    {
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, System.IServiceProvider? serviceProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider)
+            where TCommand :  notnull { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider, System.IServiceProvider? serviceProvider)
+            where TCommand :  notnull { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings)
+            where TCommand :  notnull { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>()
+            where TCommand :  notnull, PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+            where TCommand :  notnull, PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(System.IServiceProvider? serviceProvider)
+            where TCommand :  notnull, PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings)
+            where TCommand :  notnull, PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(System.IServiceProvider? serviceProvider, PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+            where TCommand : PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+            where TCommand : PolyType.IShapeable<TCommand> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, System.IServiceProvider? serviceProvider)
+            where TCommand : PolyType.IShapeable<TCommand> { }
+        public sealed class <G>$526E47CC3842F89BD15D7EE64F550ED1
+        {
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, System.IServiceProvider? serviceProvider) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider, System.IServiceProvider? serviceProvider) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromProvider<TCommand>(PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings) { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>()
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(System.IServiceProvider? serviceProvider)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(System.IServiceProvider? serviceProvider, PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, PolyType.ITypeShapeProvider? commandTypeShapeProvider)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            [System.Runtime.CompilerServices.ExtensionMarker("<M>$FAC8470CC5BECF413251A04E5DE873B4")]
+            public static Tenekon.CommandLine.Extensions.PolyType.CommandLineApp CreateFromType<TCommand>(Tenekon.CommandLine.Extensions.PolyType.CommandLineSettings? settings, System.IServiceProvider? serviceProvider)
+                where TCommand : PolyType.IShapeable<TCommand> { }
+            public static class <M>$FAC8470CC5BECF413251A04E5DE873B4 { }
+        }
+    }
+    [System.Flags]
+    public enum NameAutoGenerate
+    {
+        None = 0,
+        Command = 1,
+        Option = 2,
+        Argument = 4,
+        Directive = 8,
+        All = 15,
+    }
+    public enum NameCasingConvention
+    {
+        None = 0,
+        LowerCase = 1,
+        UpperCase = 2,
+        TitleCase = 3,
+        PascalCase = 4,
+        CamelCase = 5,
+        KebabCase = 6,
+        SnakeCase = 7,
+    }
+    public enum NamePrefixConvention
+    {
+        None = 0,
+        SingleHyphen = 1,
+        DoubleHyphen = 2,
+        ForwardSlash = 3,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple=false, Inherited=true)]
+    public sealed class OptionSpecAttribute : System.Attribute
+    {
+        public OptionSpecAttribute() { }
+        public string? Alias { get; set; }
+        public string[]? Aliases { get; set; }
+        public bool AllowMultipleArgumentsPerToken { get; set; }
+        public string[]? AllowedValues { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.ArgumentArity Arity { get; set; }
+        public string? Description { get; set; }
+        public string? HelpName { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+        public bool Recursive { get; set; }
+        public bool Required { get; set; }
+        public string? ValidationMessage { get; set; }
+        public string? ValidationPattern { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.ValidationRules ValidationRules { get; set; }
+    }
+    [System.Flags]
+    public enum ValidationRules
+    {
+        None = 0,
+        ExistingFile = 1,
+        NonExistingFile = 2,
+        ExistingDirectory = 4,
+        NonExistingDirectory = 8,
+        ExistingFileOrDirectory = 16,
+        NonExistingFileOrDirectory = 32,
+        LegalPath = 64,
+        LegalFileName = 128,
+        LegalUri = 256,
+        LegalUrl = 512,
+    }
+}
+namespace Tenekon.MethodOverloads.SourceGenerator
+{
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct | System.AttributeTargets.Interface, AllowMultiple=true)]
+    public sealed class GenerateMethodOverloadsAttribute : System.Attribute
+    {
+        public GenerateMethodOverloadsAttribute() { }
+        public System.Type[]? Matchers { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple=true)]
+    public sealed class GenerateOverloadsAttribute : System.Attribute
+    {
+        public GenerateOverloadsAttribute() { }
+        public GenerateOverloadsAttribute(string beginEnd) { }
+        public string? Begin { get; set; }
+        public string? BeginExclusive { get; set; }
+        public string? End { get; set; }
+        public string? EndExclusive { get; set; }
+        public System.Type[]? Matchers { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct | System.AttributeTargets.Method | System.AttributeTargets.Interface)]
+    public sealed class OverloadGenerationOptionsAttribute : System.Attribute
+    {
+        public OverloadGenerationOptionsAttribute() { }
+        public Tenekon.MethodOverloads.SourceGenerator.OverloadVisibility OverloadVisibility { get; set; }
+        public Tenekon.MethodOverloads.SourceGenerator.RangeAnchorMatchMode RangeAnchorMatchMode { get; set; }
+        public Tenekon.MethodOverloads.SourceGenerator.OverloadSubsequenceStrategy SubsequenceStrategy { get; set; }
+    }
+    public enum OverloadSubsequenceStrategy
+    {
+        PrefixOnly = 0,
+        UniqueBySignature = 1,
+    }
+    public enum OverloadVisibility
+    {
+        MatchTarget = 0,
+        Public = 1,
+        Internal = 2,
+        Private = 3,
+    }
+    public enum RangeAnchorMatchMode
+    {
+        TypeOnly = 0,
+        TypeAndName = 1,
+    }
+}
