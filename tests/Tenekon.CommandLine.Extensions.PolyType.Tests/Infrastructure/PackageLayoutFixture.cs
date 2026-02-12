@@ -1,14 +1,38 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Text;
+using CliWrap.Buffered;
 using Shouldly;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.Infrastructure;
 
-public sealed class PackageLayoutFixture : IDisposable
+public sealed class PackageLayoutFixture : IAsyncLifetime
 {
-    private readonly string _outputRoot;
+    private string _outputRoot;
 
-    public PackageLayoutFixture()
+    public string[] Entries { get; set; }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_outputRoot)) Directory.Delete(_outputRoot, recursive: true);
+    }
+
+    private static async Task<ProcessResult> RunProcessAsync(string fileName, string[] arguments)
+    {
+        var bufferedResult = await CliWrap.Cli.Wrap(fileName).WithArguments(arguments).ExecuteAsync();
+
+        return new ProcessResult(
+            bufferedResult.ExitCode,
+            string.Empty);
+        
+        // return new ProcessResult(
+        //     bufferedResult.ExitCode,
+        //     string.Concat(bufferedResult.StandardOutput, bufferedResult.StandardError));
+    }
+
+    private sealed record ProcessResult(int ExitCode, string Output);
+
+    public async Task InitializeAsync()
     {
         var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
         var projectPath = Path.Combine(
@@ -25,45 +49,18 @@ public sealed class PackageLayoutFixture : IDisposable
 
         Directory.CreateDirectory(outputPath);
 
-        var result = RunProcess("dotnet", $"pack \"{projectPath}\" -c Release -p:PackageOutputPath=\"{outputPath}\"");
+        var result = await RunProcessAsync(
+            "dotnet",
+            ["pack", projectPath, "-c", "Release", $"-p:PackageOutputPath={outputPath}"]);
 
         result.ExitCode.ShouldBe(0, $"dotnet pack failed with exit code {result.ExitCode}\n{result.Output}");
 
         var nupkg = Directory.GetFiles(outputPath, "*.nupkg").SingleOrDefault();
         string.IsNullOrWhiteSpace(nupkg).ShouldBeFalse("Expected exactly one .nupkg in the package output directory.");
 
-        using var zip = ZipFile.OpenRead(nupkg!);
+        await using var zip = await ZipFile.OpenReadAsync(nupkg!);
         Entries = zip.Entries.Select(e => e.FullName).ToArray();
     }
 
-    public string[] Entries { get; }
-
-    public void Dispose()
-    {
-        if (Directory.Exists(_outputRoot)) Directory.Delete(_outputRoot, recursive: true);
-    }
-
-    private static ProcessResult RunProcess(string fileName, string arguments)
-    {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        using var process = new Process { StartInfo = startInfo };
-        process.Start();
-
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-
-        return new ProcessResult(process.ExitCode, string.Concat(output, error));
-    }
-
-    private sealed record ProcessResult(int ExitCode, string Output);
+    public Task DisposeAsync() => Task.CompletedTask;
 }

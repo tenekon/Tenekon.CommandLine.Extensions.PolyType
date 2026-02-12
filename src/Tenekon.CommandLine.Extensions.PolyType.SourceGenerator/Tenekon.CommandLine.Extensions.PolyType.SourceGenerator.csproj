@@ -8,7 +8,8 @@
         <RootNamespace>Tenekon.CommandLine.Extensions.PolyType.SourceGenerator</RootNamespace>
         
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-        <IsRoslynAnalyzer>true</IsRoslynAnalyzer>
+        <IsPackable>false</IsPackable>
+        <IsRoslynComponent>true</IsRoslynComponent>
     </PropertyGroup>
 
     <ItemGroup>
