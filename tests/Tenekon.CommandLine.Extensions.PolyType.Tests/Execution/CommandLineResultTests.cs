@@ -71,7 +71,7 @@ public class CommandLineResultTests
         var fixture = new CommandAppFixture();
         var result = fixture.Parse<RunAsyncReturnsIntCommand>(["--trigger"]);
 
-        var exitCode = await result.RunAsync(TestContext.Current.CancellationToken);
+        var exitCode = await result.RunAsync();
 
         exitCode.ShouldBe(5);
     }
@@ -126,7 +126,7 @@ public class CommandLineResultTests
         var config = new CommandInvocationConfiguration { ServiceProvider = provider };
 
 #pragma warning disable xUnit1051
-        await result.RunAsync(config, TestContext.Current.CancellationToken);
+        await result.RunAsync(config);
 #pragma warning restore xUnit1051
 
         HandlerLog.LastServiceValue.ShouldBe("per-run");

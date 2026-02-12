@@ -107,7 +107,7 @@ public class CommandLineAppTests
         var config = new CommandInvocationConfiguration { ServiceProvider = provider };
 
 #pragma warning disable xUnit1051
-        await app.RunAsync(["--trigger"], config, TestContext.Current.CancellationToken);
+        await app.RunAsync(["--trigger"], config);
 #pragma warning restore xUnit1051
 
         HandlerLog.LastServiceValue.ShouldBe("per-run");
