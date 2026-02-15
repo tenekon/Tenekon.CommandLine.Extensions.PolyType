@@ -5,9 +5,7 @@
 [![Codecov](https://codecov.io/gh/tenekon/Tenekon.CommandLine.Extensions.PolyType/branch/main/graph/badge.svg)](https://codecov.io/gh/tenekon/Tenekon.CommandLine.Extensions.PolyType)
 [![License](https://img.shields.io/github/license/tenekon/Tenekon.CommandLine.Extensions.PolyType.svg)](LICENSE)
 
-## One-Paragraph Overview <!-- omit from toc -->
-
-Tenekon.CommandLine.Extensions.PolyType adds an attribute-driven layer on top of System.CommandLine, powered by [PolyType shape generation](https://eiriktsarpalis.github.io/PolyType/docs/getting-started.html). You define commands, options, and arguments with attributes, and get fast, strongly-typed binding without runtime reflection. It supports class commands and function commands and is trimming/AOT friendly.
+Tenekon.CommandLine.Extensions.PolyType adds an attribute-driven layer on top of System.CommandLine, powered by [PolyType shape generation](https://eiriktsarpalis.github.io/PolyType/docs/shape-providers.html). You define commands, options, and arguments with attributes, and get fast, strongly-typed binding without runtime reflection. It supports class commands and function commands and is trimming/AOT friendly.
 
 > [!NOTE]
 > This project was crafted in a very short time. The public API is intended to be stable, but changes **may** occur as the library matures.
@@ -21,7 +19,6 @@ dotnet add package Tenekon.CommandLine.Extensions.PolyType
 # Table of Content <!-- omit from toc -->
 
 - [Prerequisites](#prerequisites)
-- [Forword](#forword)
 - [Quick Start (Class-Based)](#quick-start-class-based)
 - [Quick Start (Function-Based)](#quick-start-function-based)
 - [Concepts at a Glance](#concepts-at-a-glance)
@@ -54,11 +51,9 @@ dotnet add package Tenekon.CommandLine.Extensions.PolyType
 
 ## Prerequisites 
 
-- Use [PolyType source generation](https://eiriktsarpalis.github.io/PolyType/docs/getting-started.html) via `[GenerateShape]` and `[GenerateShapeFor]`.
+- Use [PolyType source generation](https://eiriktsarpalis.github.io/PolyType/docs/shape-providers.html) via `[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]` and `[GenerateShapeFor(IncludeMethods = MethodShapeFlags.AllPublic)]`.
 - Command types must be `partial`.
 - Target any project that can reference `netstandard2.0` (the package also ships `net10.0`).
-
-## Forword
 
 ## Quick Start (Class-Based)
 
@@ -296,7 +291,7 @@ public interface IHasVerbosity
     bool Verbose { get; set; }
 }
 
-[GenerateShape]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
 [GenerateShapeFor(typeof(IHasVerbosity))]
 [CommandSpec]
 public partial class InfoCommand : IHasVerbosity
