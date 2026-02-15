@@ -1,7 +1,5 @@
-using System.Diagnostics;
 using System.IO.Compression;
-using System.Text;
-using CliWrap.Buffered;
+using CliWrap;
 using Shouldly;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.Infrastructure;
@@ -19,12 +17,10 @@ public sealed class PackageLayoutFixture : IAsyncLifetime
 
     private static async Task<ProcessResult> RunProcessAsync(string fileName, string[] arguments)
     {
-        var bufferedResult = await CliWrap.Cli.Wrap(fileName).WithArguments(arguments).ExecuteAsync();
+        var bufferedResult = await Cli.Wrap(fileName).WithArguments(arguments).ExecuteAsync();
 
-        return new ProcessResult(
-            bufferedResult.ExitCode,
-            string.Empty);
-        
+        return new ProcessResult(bufferedResult.ExitCode, string.Empty);
+
         // return new ProcessResult(
         //     bufferedResult.ExitCode,
         //     string.Concat(bufferedResult.StandardOutput, bufferedResult.StandardError));
@@ -53,7 +49,7 @@ public sealed class PackageLayoutFixture : IAsyncLifetime
             "dotnet",
             ["pack", projectPath, "-c", "Release", $"-p:PackageOutputPath={outputPath}"]);
 
-        result.ExitCode.ShouldBe(0, $"dotnet pack failed with exit code {result.ExitCode}\n{result.Output}");
+        result.ExitCode.ShouldBe(expected: 0, $"dotnet pack failed with exit code {result.ExitCode}\n{result.Output}");
 
         var nupkg = Directory.GetFiles(outputPath, "*.nupkg").SingleOrDefault();
         string.IsNullOrWhiteSpace(nupkg).ShouldBeFalse("Expected exactly one .nupkg in the package output directory.");
@@ -62,5 +58,8 @@ public sealed class PackageLayoutFixture : IAsyncLifetime
         Entries = zip.Entries.Select(e => e.FullName).ToArray();
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 }

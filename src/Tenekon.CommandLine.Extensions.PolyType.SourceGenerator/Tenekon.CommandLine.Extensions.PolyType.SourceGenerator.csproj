@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <RootNamespace>Tenekon.CommandLine.Extensions.PolyType.SourceGenerator</RootNamespace>
-        
+
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsPackable>false</IsPackable>
         <IsRoslynComponent>true</IsRoslynComponent>

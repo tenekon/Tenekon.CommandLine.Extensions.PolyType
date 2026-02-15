@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -16,20 +16,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="Xunit" />
+        <Using Include="Xunit"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="DiagnosticsTests.Diagnostics_HaveNoChanges.*txt">
-            <DependentUpon>DiagnosticsTests.cs</DependentUpon>
+        <None Update="Unit/SourceGenerator/DiagnosticsTests.Diagnostics_HaveNoChanges.*txt">
+            <DependentUpon>Unit/SourceGenerator/DiagnosticsTests.cs</DependentUpon>
         </None>
-        <None Update="PublicApiTests.PublicApi_HasNoChanges.*txt">
-            <DependentUpon>PublicApiTests.cs</DependentUpon>
+        <None Update="Unit/PublicApi/PublicApiTests.PublicApi_HasNoChanges.*txt">
+            <DependentUpon>Unit/PublicApi/PublicApiTests.cs</DependentUpon>
         </None>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.10.0" />
+        <PackageReference Include="CliWrap" Version="3.10.0"/>
         <PackageReference Include="coverlet.collector" Version="6.0.4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -38,13 +38,15 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-        <PackageReference Include="PolyType" Version="1.1.1" />
-        <PackageReference Include="Shouldly" Version="4.3.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
-        <PackageReference Include="PublicApiGenerator" Version="11.4.6" />
-        <PackageReference Include="xunit" Version="2.9.3" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.9.3" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageReference Include="PolyType" Version="1.1.1"/>
+        <PackageReference Include="Shouldly" Version="4.3.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="PublicApiGenerator" Version="11.4.6"/>
+        <PackageReference Include="Testably.Abstractions.Testing" Version="5.1.0"/>
+        <PackageReference Include="xunit" Version="2.9.3"/>
+        <PackageReference Include="Xunit.Combinatorial" Version="1.7.31"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.9.3" PrivateAssets="all"/>
         <PackageReference Include="Verify.Xunit" Version="31.12.5"/>
         <!-- Once coverlet has MTP support -->
         <!-- <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2"/>
@@ -52,9 +54,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType\Tenekon.CommandLine.Extensions.PolyType.csproj" />
-        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj" />
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType\Tenekon.CommandLine.Extensions.PolyType.csproj"/>
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\src\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator\Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj"/>
     </ItemGroup>
 
 </Project>

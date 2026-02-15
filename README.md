@@ -1,50 +1,89 @@
-# Tenekon.CommandLine.Extensions.PolyType
+# Tenekon.CommandLine.Extensions.PolyType <!-- omit from toc -->
 
 [![Build](https://github.com/tenekon/Tenekon.CommandLine.Extensions.PolyType/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/tenekon/Tenekon.CommandLine.Extensions.PolyType/actions/workflows/coverage.yml)
 [![NuGet](https://img.shields.io/nuget/v/Tenekon.CommandLine.Extensions.PolyType.svg)](https://www.nuget.org/packages/Tenekon.CommandLine.Extensions.PolyType)
 [![Codecov](https://codecov.io/gh/tenekon/Tenekon.CommandLine.Extensions.PolyType/branch/main/graph/badge.svg)](https://codecov.io/gh/tenekon/Tenekon.CommandLine.Extensions.PolyType)
 [![License](https://img.shields.io/github/license/tenekon/Tenekon.CommandLine.Extensions.PolyType.svg)](LICENSE)
 
-System.CommandLine is a powerful parser, but composing a class-based CLI can get verbose.
-Tenekon.CommandLine.Extensions.PolyType provides a declarative, attribute-driven layer on top of
-System.CommandLine using PolyType for fast, strongly-typed binding with no runtime reflection.
+## One-Paragraph Overview <!-- omit from toc -->
 
-## Getting started
+Tenekon.CommandLine.Extensions.PolyType adds an attribute-driven layer on top of System.CommandLine, powered by [PolyType shape generation](https://eiriktsarpalis.github.io/PolyType/docs/getting-started.html). You define commands, options, and arguments with attributes, and get fast, strongly-typed binding without runtime reflection. It supports class commands and function commands and is trimming/AOT friendly.
 
-Install the package:
+> [!NOTE]
+> This project was crafted in a very short time. The public API is intended to be stable, but changes **may** occur as the library matures.
+
+## Install <!-- omit from toc -->
+
 ```console
 dotnet add package Tenekon.CommandLine.Extensions.PolyType
 ```
 
-Add PolyType so shapes are generated for your command types:
-```console
-dotnet add package PolyType
-```
+# Table of Content <!-- omit from toc -->
 
-## Prerequisites
+- [Prerequisites](#prerequisites)
+- [Forword](#forword)
+- [Quick Start (Class-Based)](#quick-start-class-based)
+- [Quick Start (Function-Based)](#quick-start-function-based)
+- [Concepts at a Glance](#concepts-at-a-glance)
+- [Defining Commands](#defining-commands)
+- [Defining Options and Arguments](#defining-options-and-arguments)
+- [Defining Directives](#defining-directives)
+- [Handler Methods and Signatures](#handler-methods-and-signatures)
+- [Method Commands (Instance Methods)](#method-commands-instance-methods)
+- [Interface-Based Specs](#interface-based-specs)
+- [Naming Rules and Aliases](#naming-rules-and-aliases)
+- [Requiredness and Arity](#requiredness-and-arity)
+- [Validation and Allowed Values](#validation-and-allowed-values)
+- [Runtime Creation](#runtime-creation)
+- [Runtime Creation: Class-Based](#runtime-creation-class-based)
+- [Runtime Creation: Custom ITypeShapeProvider](#runtime-creation-custom-itypeshapeprovider)
+- [Runtime Creation: Model-First (Advanced)](#runtime-creation-model-first-advanced)
+- [Runtime Creation: Function-Based](#runtime-creation-function-based)
+- [Parsing Without Invocation](#parsing-without-invocation)
+- [Binding Results and Helpers](#binding-results-and-helpers)
+- [Invocation Options (Per Call)](#invocation-options-per-call)
+- [CommandRuntimeContext](#commandruntimecontext)
+- [Services and Service Resolution](#services-and-service-resolution)
+- [Functions and Function Resolution](#functions-and-function-resolution)
+- [Settings (CommandRuntimeSettings)](#settings-commandruntimesettings)
+- [Response Files and POSIX Bundling](#response-files-and-posix-bundling)
+- [Built-In Directives](#built-in-directives)
+- [File System Abstraction (Advanced)](#file-system-abstraction-advanced)
+- [Trimming and AOT](#trimming-and-aot)
 
-- Any project that can reference `netstandard2.0` (the package also ships `net10.0`).
-- Use the PolyType source generator (`[GenerateShape]`) for command types.
-- Command types must be `partial` (enforced by diagnostics).
 
-## Usage (class-based model)
+## Prerequisites 
 
-In `Program.cs`:
+- Use [PolyType source generation](https://eiriktsarpalis.github.io/PolyType/docs/getting-started.html) via `[GenerateShape]` and `[GenerateShapeFor]`.
+- Command types must be `partial`.
+- Target any project that can reference `netstandard2.0` (the package also ships `net10.0`).
+
+## Forword
+
+## Quick Start (Class-Based)
+
+`Program.cs`:
 ```csharp
-using Tenekon.CommandLine.Extensions.PolyType;
+using Tenekon.CommandLine.Extensions.PolyType.Runtime;
 
-var app = CommandLineApp.CreateFromType<RootCommand>();
-return app.Run(args);
+return CommandRuntime.Factory.Object
+    .Create<RootCommand>(
+        settings: null,
+        modelRegistry: null,
+        modelBuildOptions: null,
+        serviceResolver: null)
+    .Run(args);
 ```
 
-Create a command class:
+Command type:
 ```csharp
 using PolyType;
 using PolyType.SourceGenModel;
-using Tenekon.CommandLine.Extensions.PolyType;
+using Tenekon.CommandLine.Extensions.PolyType.Spec;
+using Tenekon.CommandLine.Extensions.PolyType.Runtime;
 
 [GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
-[CommandSpec(Description = "A root command")]
+[CommandSpec(Description = "Root command")]
 public partial class RootCommand
 {
     [OptionSpec(Description = "Greeting target")]
@@ -53,7 +92,7 @@ public partial class RootCommand
     [ArgumentSpec(Description = "Input file")]
     public string? File { get; set; }
 
-    public int Run(CommandLineContext context)
+    public int Run(CommandRuntimeContext context)
     {
         if (context.IsEmptyCommand())
         {
@@ -68,38 +107,326 @@ public partial class RootCommand
 }
 ```
 
-Async handler:
+## Quick Start (Function-Based)
+
+`Program.cs`:
+Preparation:
 ```csharp
-public Task<int> RunAsync(CommandLineContext context, CancellationToken token)
+using PolyType;
+using Tenekon.CommandLine.Extensions.PolyType.Spec;
+
+[GenerateShapeFor(typeof(GreetCommand))]
+public partial class CliShapes;
+
+[CommandSpec(Description = "Greets from a function")]
+public delegate int GreetCommand([OptionSpec] string name);
+```
+
+> [!TIP]
+> GenerateShapeForAttribute supports [glob pattern](https://eiriktsarpalis.github.io/PolyType/docs/shape-providers.html#source-generator)
+
+> [!NOTE]
+> Function commands require a function instance. Register it via `runtime.FunctionRegistry` or provide a custom `ICommandFunctionResolver`.
+
+```csharp
+using Tenekon.CommandLine.Extensions.PolyType.Runtime;
+
+var runtime = CommandRuntime.Factory.Function.Create<GreetCommand, CliShapes>(
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: null);
+
+runtime.FunctionRegistry.Set<GreetCommand>(name =>
 {
-    // ...
-    return Task.FromResult(0);
+    Console.WriteLine($"Hello {name}");
+    return 0;
+});
+
+return runtime.Run(args);
+```
+
+Explicit:
+```csharp
+using PolyType;
+using PolyType.Abstractions;
+using Tenekon.CommandLine.Extensions.PolyType.Runtime;
+
+var shape = (IFunctionTypeShape)TypeShapeResolver.Resolve<GreetCommand>();
+var provider = shape.Provider;
+
+var runtime = CommandRuntime.Factory.Function.Create(
+    commandType: typeof(GreetCommand),
+    commandTypeShapeProvider: provider,
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: null);
+
+runtime.FunctionRegistry.Set<GreetCommand>(name =>
+{
+    Console.WriteLine($"Hello {name}");
+    return 0;
+});
+
+return runtime.Run(args);
+```
+
+
+## Concepts at a Glance
+
+- Spec attributes describe commands, options, arguments, and directives.
+- Model (Advanced) represents the metadata graph derived from shapes.
+- Runtime builds System.CommandLine commands and binders from the model.
+- Binding maps parsed tokens to strongly-typed objects.
+- Invocation runs handlers with services and functions resolved.
+
+## Defining Commands
+
+Use `[CommandSpec]` on classes to define commands.
+
+Nested child commands:
+```csharp
+[CommandSpec(Name = "git", Description = "Root command")]
+public partial class GitCommand
+{
+    [CommandSpec(Name = "status")]
+    public partial class StatusCommand
+    {
+        public int Run() => 0;
+    }
 }
 ```
 
-### Summary
-- Mark command classes with `[CommandSpec]`.
-- Mark properties with `[OptionSpec]` or `[ArgumentSpec]`.
-- Add `Run`/`RunAsync` handler methods.
-- Use `CommandLineApp.CreateFromType<TCommand>()` to run.
+Explicit parent/child linkage:
+```csharp
+[CommandSpec(Description = "Root", Children = new[] { typeof(StatusCommand) })]
+public partial class RootCommand { }
 
-### Handler signatures
+[CommandSpec(Parent = typeof(RootCommand), Description = "Child")]
+public partial class StatusCommand { }
+```
 
-Supported signatures:
-- `void Run()` / `int Run()`
-- `Task RunAsync()` / `Task<int> RunAsync()`
+You can also control unmatched tokens with `TreatUnmatchedTokensAsErrors` on `[CommandSpec]`.
 
-Optional parameters:
-- `CommandLineContext` as the first parameter
-- `CancellationToken` as the last parameter
-- Any other parameters are resolved from `IServiceProvider`
+## Defining Options and Arguments
 
-### Parsing without invocation
+Property-based definitions:
+```csharp
+[CommandSpec]
+public partial class BuildCommand
+{
+    [OptionSpec(Description = "Configuration")]
+    public string? Configuration { get; set; }
+
+    [ArgumentSpec(Description = "Project path")]
+    public string Project { get; set; } = "";
+
+    public int Run() => 0;
+}
+```
+
+Parameter-based definitions:
+```csharp
+[CommandSpec]
+public partial class CleanCommand
+{
+    public int Run([OptionSpec] bool force, [ArgumentSpec] string path) => 0;
+}
+```
+
+`OptionSpecAttribute` and `ArgumentSpecAttribute` support:
+- Name, Description, Hidden, Order
+- Arity, Required
+- AllowedValues
+- ValidationRules, ValidationPattern, ValidationMessage
+
+`OptionSpecAttribute` also supports:
+- Alias, Aliases, HelpName
+- Recursive
+- AllowMultipleArgumentsPerToken
+
+## Defining Directives
+
+Define directives with `[DirectiveSpec]` on properties or parameters. Supported types are `bool`, `string`, and `string[]`.
 
 ```csharp
-var app = CommandLineApp.CreateFromType<RootCommand>();
-var result = app.Parse(args);
+[CommandSpec]
+public partial class AnalyzeCommand
+{
+    [DirectiveSpec(Description = "Enable verbose diagnostics")]
+    public bool Verbose { get; set; }
 
+    public int Run() => 0;
+}
+```
+
+## Handler Methods and Signatures
+
+Supported handler signatures:
+- `void Run()` and `int Run()`
+- `Task RunAsync()` and `Task<int> RunAsync()`
+
+Optional parameters:
+- `CommandRuntimeContext` as the first parameter
+- `CancellationToken` as the last parameter
+- Any other parameters resolve as services or functions
+
+## Method Commands (Instance Methods)
+
+Public instance methods annotated with `[CommandSpec]` become child commands.
+
+```csharp
+[CommandSpec]
+public partial class ToolCommand
+{
+    [CommandSpec(Description = "Clean outputs")]
+    public int Clean([OptionSpec] bool force) => 0;
+}
+```
+
+## Interface-Based Specs
+
+Attributes can live on interfaces when the shape is generated with `[GenerateShapeFor]`.
+
+```csharp
+public interface IHasVerbosity
+{
+    [OptionSpec(Description = "Verbose output")]
+    bool Verbose { get; set; }
+}
+
+[GenerateShape]
+[GenerateShapeFor(typeof(IHasVerbosity))]
+[CommandSpec]
+public partial class InfoCommand : IHasVerbosity
+{
+    public bool Verbose { get; set; }
+    public int Run() => 0;
+}
+```
+
+## Naming Rules and Aliases
+
+- Names are auto-generated from type/member names.
+- Common suffixes like `Command`, `Option`, and `Argument` are stripped.
+- Names default to `kebab-case`.
+- Options get long and short forms by default.
+
+Override naming in `[CommandSpec]`:
+```csharp
+[CommandSpec(
+    Name = "init",
+    Alias = "i",
+    NameAutoGenerate = NameAutoGenerate.None,
+    NameCasingConvention = NameCasingConvention.KebabCase)]
+public partial class InitializeCommand { }
+```
+
+## Requiredness and Arity
+
+Requiredness and arity can be explicit or inferred from nullability and defaults.
+
+```csharp
+[CommandSpec]
+public partial class DeployCommand
+{
+    [OptionSpec(Required = true)]
+    public string Environment { get; set; } = "";
+
+    [ArgumentSpec(Arity = ArgumentArity.OneOrMore)]
+    public string[] Targets { get; set; } = [];
+}
+```
+
+## Validation and Allowed Values
+
+`ValidationRules` supports common file, directory, path, and URL rules. You can also provide a regex with `ValidationPattern` and a custom `ValidationMessage`.
+
+```csharp
+[CommandSpec]
+public partial class ScanCommand
+{
+    [ArgumentSpec(
+        ValidationRules = ValidationRules.ExistingFile | ValidationRules.LegalPath,
+        ValidationMessage = "Input must be an existing file")]
+    public string Input { get; set; } = "";
+}
+```
+
+## Runtime Creation
+
+Use `CommandRuntime.Factory.Object` for class-based commands and `CommandRuntime.Factory.Function` for function commands.
+
+## Runtime Creation: Class-Based
+
+```csharp
+var runtime = CommandRuntime.Factory.Object.Create<RootCommand>(
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: null);
+```
+
+## Runtime Creation: Custom ITypeShapeProvider
+
+```csharp
+using PolyType.Abstractions;
+
+var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<RootCommand>();
+var provider = shape.Provider;
+
+var runtime = CommandRuntime.Factory.Object.Create(
+    commandType: typeof(RootCommand),
+    commandTypeShapeProvider: provider,
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: null);
+```
+
+## Runtime Creation: Model-First (Advanced)
+
+```csharp
+using PolyType.Abstractions;
+using Tenekon.CommandLine.Extensions.PolyType.Model;
+
+var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<RootCommand>();
+var provider = shape.Provider;
+
+var registry = new CommandModelRegistry();
+var model = registry.Object.GetOrAdd(
+    typeof(RootCommand),
+    provider,
+    new CommandModelBuildOptions { RootParentHandling = RootParentHandling.Ignore });
+
+var runtime = CommandRuntime.Factory.Object.CreateFromModel(
+    model,
+    settings: null,
+    serviceResolver: null);
+```
+
+## Runtime Creation: Function-Based
+
+```csharp
+using PolyType.Abstractions;
+
+var shape = (IFunctionTypeShape)TypeShapeResolver.Resolve<GreetCommand>();
+var provider = shape.Provider;
+
+var runtime = CommandRuntime.Factory.Function.Create(
+    commandType: typeof(GreetCommand),
+    commandTypeShapeProvider: provider,
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: null);
+```
+
+## Parsing Without Invocation
+
+```csharp
+var result = runtime.Parse(args);
 if (result.ParseResult.Errors.Count > 0)
 {
     // handle errors
@@ -108,162 +435,188 @@ if (result.ParseResult.Errors.Count > 0)
 var instance = result.Bind<RootCommand>();
 ```
 
-### Inspecting results
+## Binding Results and Helpers
 
-`CommandLineResult` exposes helpers for more advanced flows:
-- `BindAll()` / `BindCalled()`
-- `TryBindCalled(out object?)`
-- `Contains<T>()` / `IsCalled<T>()`
-- `TryGetCalledType(out Type?)`
-- `TryGetBinder(Type commandType, Type targetType, out Action<object, ParseResult>?)`
-
-## CommandLineApp creation
-
-You can create an app using a custom shape provider:
 ```csharp
-var app = CommandLineApp.CreateFromProvider(
-    commandType: typeof(RootCommand),
-    commandTypeShapeProvider: provider,
-    settings: null,
-    serviceProvider: null);
+var called = result.BindCalled();
+var all = result.BindAll();
+var isCalled = result.IsCalled<RootCommand>();
+var hasRoot = result.Contains<RootCommand>();
+
+if (result.TryGetBinder(typeof(RootCommand), typeof(RootCommand), out var binder))
+{
+    binder(instance, result.ParseResult);
+}
 ```
 
-## Help output
+## Invocation Options (Per Call)
 
-Help output comes from System.CommandLine and is generated automatically from your specs.
-The header uses assembly metadata, the description comes from `[CommandSpec].Description`.
+```csharp
+var options = new CommandInvocationOptions
+{
+    ServiceResolver = new MyServiceResolver(),
+    FunctionResolver = new MyFunctionResolver()
+};
 
-You can also call helpers on `CommandLineContext`:
+return runtime.Run(args, options);
+```
+
+## CommandRuntimeContext
+
+`CommandRuntimeContext` provides:
+- `ParseResult`
+- `IsEmptyCommand()`
 - `ShowHelp()`
 - `ShowHierarchy()`
 - `ShowValues()`
-- `IsEmptyCommand()`
 
-## Naming conventions
-
-By default, names are auto-generated:
-- Command/option/argument names are generated from class/property names.
-- Common suffixes (`Command`, `Option`, `Argument`, `Directive`, etc.) are stripped.
-- Names are converted to `kebab-case`.
-- Options get `--long` and short aliases like `-o1`.
-
-You can override naming via `[CommandSpec]`:
-- `Name`, `Alias`, `Aliases`
-- `NameAutoGenerate`, `NameCasingConvention`, `NamePrefixConvention`
-- `ShortFormAutoGenerate`, `ShortFormPrefixConvention`
-- `Order`, `Hidden`, `TreatUnmatchedTokensAsErrors`
-
-## Command composition
-
-Use parent/child relationships or nested types:
 ```csharp
-[CommandSpec(Description = "Root")]
-public partial class RootCommand
+public int Run(CommandRuntimeContext context)
 {
-    [CommandSpec(Description = "Child command")]
-    public partial class ChildCommand
+    if (context.IsEmptyCommand())
     {
-        public void Run() { }
+        context.ShowHelp();
+        return 0;
+    }
+
+    context.ShowValues();
+    return 0;
+}
+```
+
+## Services and Service Resolution
+
+`ICommandServiceResolver` provides constructor and handler dependencies that are not bound as options, arguments, or directives.
+
+```csharp
+public sealed class ServiceProviderResolver(IServiceProvider provider) : ICommandServiceResolver
+{
+    public bool TryResolve<TService>(out TService? value)
+    {
+        value = (TService?)provider.GetService(typeof(TService));
+        return value is not null;
+    }
+}
+
+var runtime = CommandRuntime.Factory.Object.Create<RootCommand>(
+    settings: null,
+    modelRegistry: null,
+    modelBuildOptions: null,
+    serviceResolver: new ServiceProviderResolver(serviceProvider));
+```
+
+## Functions and Function Resolution
+
+Function instances are resolved separately from services. The resolution order is:
+- `CommandInvocationOptions.FunctionResolver`
+- `CommandRuntime.FunctionRegistry` and `CommandRuntimeSettings.FunctionResolvers`
+- `ICommandServiceResolver` if `AllowFunctionResolutionFromServices` is enabled
+
+> [!IMPORTANT]
+> Service resolution for functions only happens when `AllowFunctionResolutionFromServices` is enabled.
+
+Register a function instance:
+```csharp
+runtime.FunctionRegistry.Set<GreetCommand>(name =>
+{
+    Console.WriteLine($"Hello {name}");
+    return 0;
+});
+```
+
+Custom function resolver:
+```csharp
+public sealed class MyFunctionResolver : ICommandFunctionResolver
+{
+    public bool TryResolve<TFunction>(out TFunction value)
+    {
+        if (typeof(TFunction) == typeof(GreetCommand))
+        {
+            value = (TFunction)(object)(GreetCommand)(name => 0);
+            return true;
+        }
+
+        value = default!;
+        return false;
     }
 }
 ```
 
-Or link by type:
-```csharp
-[CommandSpec(Description = "Root", Children = new[] { typeof(ChildCommand) })]
-public partial class RootCommand { }
+## Settings (CommandRuntimeSettings)
 
-[CommandSpec(Parent = typeof(RootCommand), Description = "Child")]
-public partial class ChildCommand { }
+Common settings:
+- `EnableDefaultExceptionHandler`
+- `ShowHelpOnEmptyCommand`
+- `AllowFunctionResolutionFromServices`
+- `EnableDiagramDirective`
+- `EnableSuggestDirective`
+- `EnableEnvironmentVariablesDirective`
+- `Output`, `Error`
+- `FileSystem` (Advanced)
+- `FunctionResolvers`
+- `EnablePosixBundling`
+- `ResponseFileTokenReplacer`
+
+```csharp
+var settings = new CommandRuntimeSettings
+{
+    ShowHelpOnEmptyCommand = true,
+    EnableSuggestDirective = true
+};
 ```
 
-## Options and arguments
+## Response Files and POSIX Bundling
 
-`[OptionSpec]` supports:
-- `Name`, `Alias`, `Aliases`, `Description`, `HelpName`, `Hidden`, `Order`
-- `Recursive`, `AllowMultipleArgumentsPerToken`
-- `AllowedValues`
-- `Required`, `Arity`
-- `ValidationRules`, `ValidationPattern`, `ValidationMessage`
-
-`[ArgumentSpec]` supports:
-- `Name`, `Description`, `HelpName`, `Hidden`, `Order`
-- `AllowedValues`
-- `Required`, `Arity`
-- `ValidationRules`, `ValidationPattern`, `ValidationMessage`
-
-If `Required` isn’t specified, it’s inferred from nullability and default values.
-`Arity` can be forced via the attribute or inferred for required arguments.
-
-## Validation and allowed values
-
-`ValidationRules` includes file/path/URL rules and can be combined with bitwise OR.
-Use `ValidationPattern` and `ValidationMessage` for custom regex validation.
-
-## Directives
-
-Define custom directives via `[DirectiveSpec]`:
 ```csharp
-[DirectiveSpec]
-public bool Debug { get; set; }
+using System.CommandLine.Parsing;
+
+var settings = new CommandRuntimeSettings
+{
+    EnablePosixBundling = true,
+    ResponseFileTokenReplacer = static (Token token, out string[]? replacements) =>
+    {
+        replacements = null;
+        return false;
+    }
+};
 ```
 
-Supported directive property types:
-- `bool`
-- `string`
-- `string[]`
+## Built-In Directives
 
-`[DirectiveSpec]` supports:
-- `Name`, `Description`, `Hidden`, `Order`
-
-Built-in directives are configurable in `CommandLineSettings`:
+Configure built-in directives with:
 - `EnableDiagramDirective`
 - `EnableSuggestDirective`
 - `EnableEnvironmentVariablesDirective`
 
-## Response files
+## File System Abstraction (Advanced)
 
-System.CommandLine response files are supported. You can customize token replacement via:
-`CommandLineSettings.ResponseFileTokenReplacer`.
+Validation rules use `IFileSystem`. Provide your own implementation if needed.
 
-## Dependency injection
-
-Provide a service provider for constructor injection and handler parameters:
 ```csharp
-var services = new ServiceCollection();
-services.AddSingleton<MyService>();
-var provider = services.BuildServiceProvider();
+public sealed class InMemoryFileSystem : IFileSystem
+{
+    public IFileSystemFile File { get; } = new InMemoryFile();
+    public IFileSystemDirectory Directory { get; } = new InMemoryDirectory();
+    public IFileSystemPath Path { get; } = new InMemoryPath();
 
-var app = CommandLineApp.CreateFromType<RootCommand>(
-    settings: null,
-    serviceProvider: provider,
-    commandTypeShapeProvider: null);
+    private sealed class InMemoryFile : IFileSystemFile
+    {
+        public bool FileExists(string path) => false;
+    }
 
-return app.Run(args);
+    private sealed class InMemoryDirectory : IFileSystemDirectory
+    {
+        public bool DirectoryExists(string path) => false;
+    }
+
+    private sealed class InMemoryPath : IFileSystemPath
+    {
+        public char[] GetInvalidPathChars() => [];
+        public char[] GetInvalidFileNameChars() => [];
+    }
+}
 ```
-
-Per-invocation override:
-```csharp
-var config = new CommandInvocationConfiguration { ServiceProvider = provider };
-return app.Run(args, config);
-```
-
-## Interface-based specs
-
-Option/argument specs can live on interfaces. Use PolyType’s `[GenerateShapeFor]`
-to generate shapes for those interfaces, and the attributes will be picked up from the interface definition.
-
-## Settings
-
-`CommandLineSettings` controls:
-- default exception handler
-- help on empty commands
-- built-in directives
-- response file token replacement
-- output/error writers
-- POSIX bundling
 
 ## Trimming and AOT
 
-This library is reflection-free at runtime when you use PolyType source-generated shapes,
-which makes it friendly for trimming and Native AOT deployments.
+PolyType source generation allows runtime binding without reflection, making this library trimming-friendly and suitable for Native AOT scenarios.

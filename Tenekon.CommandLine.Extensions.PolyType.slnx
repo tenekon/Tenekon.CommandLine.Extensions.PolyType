@@ -1,7 +1,9 @@
 <Solution>
     <Folder Name="/tests/">
-        <Project Path="tests/Tenekon.CommandLine.Extensions.PolyType.Tests/Tenekon.CommandLine.Extensions.PolyType.Tests.csproj" />
+        <Project
+                Path="tests/Tenekon.CommandLine.Extensions.PolyType.Tests/Tenekon.CommandLine.Extensions.PolyType.Tests.csproj"/>
     </Folder>
-    <Project Path="src/Tenekon.CommandLine.Extensions.PolyType.SourceGenerator/Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj" />
-    <Project Path="src/Tenekon.CommandLine.Extensions.PolyType/Tenekon.CommandLine.Extensions.PolyType.csproj" />
+    <Project
+            Path="src/Tenekon.CommandLine.Extensions.PolyType.SourceGenerator/Tenekon.CommandLine.Extensions.PolyType.SourceGenerator.csproj"/>
+    <Project Path="src/Tenekon.CommandLine.Extensions.PolyType/Tenekon.CommandLine.Extensions.PolyType.csproj"/>
 </Solution>

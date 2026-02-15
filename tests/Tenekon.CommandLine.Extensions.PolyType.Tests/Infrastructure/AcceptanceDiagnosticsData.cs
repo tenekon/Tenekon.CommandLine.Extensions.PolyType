@@ -7,7 +7,7 @@ public sealed class AcceptanceDiagnosticsData : IEnumerable<object[]>
     public IEnumerator<object[]> GetEnumerator()
     {
         foreach (var caseResult in AcceptanceFixtureCache.Instance.DiagnosticCases)
-            yield return new object[] { caseResult };
+            yield return [caseResult];
     }
 
     IEnumerator IEnumerable.GetEnumerator()

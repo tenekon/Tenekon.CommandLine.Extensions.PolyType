@@ -7,8 +7,9 @@ internal sealed class ConfigureCommandActionInvoker : TypeShapeVisitor
 {
     public static ConfigureCommandActionInvoker Default { get; } = new();
 
-    public override object? VisitObject<T>(IObjectTypeShape<T> objectShape, object? state = null) =>
-        objectShape.Methods.SingleOrDefault(methodShape => methodShape is
+    public override object? VisitObject<T>(IObjectTypeShape<T> objectShape, object? state = null)
+    {
+        return objectShape.Methods.SingleOrDefault(methodShape => methodShape is
             {
                 Name: "ConfigureCommand",
                 IsStatic: true,
@@ -17,6 +18,7 @@ internal sealed class ConfigureCommandActionInvoker : TypeShapeVisitor
                 Parameters: [{ ParameterInfo.ParameterType: { } parameterType }]
             } && parameterType == typeof(ConfigureCommandContext))
             ?.Accept(this);
+    }
 
     public override object? VisitMethod<TDeclaringType, TArgumentState, TResult>(
         IMethodShape<TDeclaringType, TArgumentState, TResult> methodShape,

@@ -10,7 +10,7 @@ internal sealed class MinimalRunnerFixture
     {
         Output = new StringWriter();
         Error = new StringWriter();
-        Settings = new CommandLineSettings
+        Settings = new CommandRuntimeSettings
         {
             Output = Output,
             Error = Error,
@@ -20,13 +20,12 @@ internal sealed class MinimalRunnerFixture
 
     public StringWriter Output { get; }
     public StringWriter Error { get; }
-    public CommandLineSettings Settings { get; }
+    public CommandRuntimeSettings Settings { get; }
     public IServiceCollection SecondStageServices { get; } = new ServiceCollection();
     public IServiceProvider? FirstStageProvider { get; private set; }
     public List<IServiceProvider> SecondStageProviders { get; } = [];
 
-    public Task<int> RunAsync<TCommand>(string[] args)
-        where TCommand : IShapeable<TCommand>
+    public Task<int> RunAsync<TCommand>(string[] args) where TCommand : IShapeable<TCommand>
     {
         return MinimalCommandLineRunner.RunAsync<TCommand>(
             args,
@@ -47,8 +46,7 @@ internal sealed class MinimalRunnerFixture
         SecondStageProviders.Add(provider);
     }
 
-    private static ITypeShapeProvider GetShapeProvider<TCommand>()
-        where TCommand : IShapeable<TCommand>
+    private static ITypeShapeProvider GetShapeProvider<TCommand>() where TCommand : IShapeable<TCommand>
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
         return shape.Provider;

@@ -1,0 +1,534 @@
+﻿[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
+namespace Tenekon.CommandLine.Extensions.PolyType.Model
+{
+    public sealed class CommandFunctionConstraint { }
+    public sealed class CommandModel
+    {
+        public System.Type DefinitionType { get; }
+    }
+    public sealed class CommandModelBuildOptions : System.IEquatable<Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions>
+    {
+        public CommandModelBuildOptions() { }
+        public Tenekon.CommandLine.Extensions.PolyType.Model.RootParentHandling RootParentHandling { get; init; }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions Default { get; }
+    }
+    public sealed class CommandModelRegistry
+    {
+        public CommandModelRegistry(Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? defaultOptions = null) { }
+        public Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> Function { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> Object { get; }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelRegistry Shared { get; }
+    }
+    [Tenekon.MethodOverloads.GenerateMethodOverloads(Matchers=new System.Type[] {
+            typeof(Tenekon.CommandLine.Extensions.PolyType.Model.ICommandRegistryOverloadGenerationMatchers)})]
+    public static class CommandModelRegistryExtensions
+    {
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandModelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandModelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        [Tenekon.MethodOverloads.GenerateOverloads(Matchers=new System.Type[] {
+                typeof(Tenekon.CommandLine.Extensions.PolyType.Model.ICommandRegistryOverloadGenerationMatchers)})]
+        public static Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TConstraint, TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<TConstraint> commandModelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? buildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+    }
+    public sealed class CommandObjectConstraint { }
+    [Tenekon.MethodOverloads.GenerateMethodOverloads(Matchers=new System.Type[] {
+            typeof(Tenekon.CommandLine.Extensions.PolyType.Model.ICommandRegistryOverloadGenerationMatchers)})]
+    public interface ICommandModelRegistry<TConstraint>
+    {
+        Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? buildOptions);
+        Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType>(PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? buildOptions);
+        Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel GetOrAdd<TCommandType, TCommandTypeShapeOwner>(Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? buildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType>;
+    }
+    public enum RootParentHandling
+    {
+        Throw = 0,
+        Ignore = 1,
+    }
+}
+namespace Tenekon.CommandLine.Extensions.PolyType.Runtime
+{
+    public sealed class CommandFunctionRegistry : Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandFunctionResolver
+    {
+        public CommandFunctionRegistry() { }
+        public TFunction GetOrAdd<TFunction>(System.Func<TFunction> factory) { }
+        public void Set<TFunction>(TFunction instance) { }
+        public bool TryGet<TFunction>(out TFunction value) { }
+    }
+    public sealed class CommandRuntime
+    {
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandFunctionRegistry FunctionRegistry { get; }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeFactory Factory { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeResult Parse(string[]? args = null) { }
+        public int Run(string[]? args = null) { }
+        public int Run(string[]? args, Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation.CommandInvocationOptions? config) { }
+        public System.Threading.Tasks.Task<int> RunAsync(string[]? args = null, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<int> RunAsync(string[]? args, Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation.CommandInvocationOptions? config, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public sealed class CommandRuntimeContext
+    {
+        public System.CommandLine.ParseResult ParseResult { get; }
+        public bool IsEmptyCommand() { }
+        public void ShowHelp() { }
+        public void ShowHierarchy() { }
+        public void ShowValues() { }
+    }
+    public sealed class CommandRuntimeFactory
+    {
+        public CommandRuntimeFactory() { }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> Function { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> Object { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime CreateFromModel(Tenekon.CommandLine.Extensions.PolyType.Model.CommandModel model, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+    }
+    [Tenekon.MethodOverloads.GenerateMethodOverloads(Matchers=new System.Type[] {
+            typeof(Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactoryMatchers)})]
+    public static class CommandRuntimeFactoryExtensions
+    {
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver) { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandFunctionConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint> source, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<Tenekon.CommandLine.Extensions.PolyType.Model.CommandObjectConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType> { }
+        public static Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TConstraint, TCommandType>(this Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactory<TConstraint> commandRuntimeFactory, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<TConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandType : PolyType.IShapeable<TCommandType> { }
+    }
+    public sealed class CommandRuntimeResult
+    {
+        public System.CommandLine.ParseResult ParseResult { get; }
+        public object Bind(System.Type definitionType, bool returnEmpty = false) { }
+        public TDefinition Bind<TDefinition>(bool returnEmpty = false) { }
+        public void Bind<TCommand, TTarget>(TTarget instance) { }
+        public object[] BindAll() { }
+        public object BindCalled() { }
+        public bool Contains(System.Type definitionType) { }
+        public bool Contains<TDefinition>() { }
+        public bool IsCalled(System.Type definitionType) { }
+        public bool IsCalled<TDefinition>() { }
+        public int Run() { }
+        public int Run(Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation.CommandInvocationOptions? config) { }
+        public System.Threading.Tasks.Task<int> RunAsync(System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<int> RunAsync(Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation.CommandInvocationOptions? config, System.Threading.CancellationToken cancellationToken = default) { }
+        public bool TryBindCalled(out object? value) { }
+        public bool TryGetBinder(System.Type commandType, System.Type targetType, out System.Action<object, System.CommandLine.ParseResult>? binder) { }
+        public bool TryGetCalledType(out System.Type? value) { }
+    }
+    public sealed class CommandRuntimeSettings
+    {
+        public CommandRuntimeSettings() { }
+        public bool AllowFunctionResolutionFromServices { get; set; }
+        public bool EnableDefaultExceptionHandler { get; set; }
+        public bool EnableDiagramDirective { get; set; }
+        public bool EnableEnvironmentVariablesDirective { get; set; }
+        public bool EnablePosixBundling { get; set; }
+        public bool EnableSuggestDirective { get; set; }
+        public System.IO.TextWriter Error { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystem FileSystem { get; set; }
+        public System.Collections.Generic.IList<Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandFunctionResolver> FunctionResolvers { get; }
+        public System.IO.TextWriter Output { get; set; }
+        public System.CommandLine.Parsing.TryReplaceToken? ResponseFileTokenReplacer { get; set; }
+        public bool ShowHelpOnEmptyCommand { get; set; }
+    }
+    public interface ICommandFunctionResolver
+    {
+        bool TryResolve<TFunction>(out TFunction value);
+    }
+    [Tenekon.MethodOverloads.GenerateMethodOverloads(Matchers=new System.Type?[]?[] {
+            typeof(Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandRuntimeFactoryMatchers?)})]
+    public interface ICommandRuntimeFactory<TConstraint>
+    {
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create(System.Type commandType, PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<TConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver);
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType>(PolyType.ITypeShapeProvider commandTypeShapeProvider, Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<TConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver);
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(Tenekon.CommandLine.Extensions.PolyType.Runtime.CommandRuntimeSettings? settings, Tenekon.CommandLine.Extensions.PolyType.Model.ICommandModelRegistry<TConstraint>? modelRegistry, Tenekon.CommandLine.Extensions.PolyType.Model.CommandModelBuildOptions? modelBuildOptions, Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? serviceResolver)
+            where TCommandTypeShapeOwner : PolyType.IShapeable<TCommandType>;
+    }
+    public interface ICommandServiceResolver
+    {
+        bool TryResolve<TService>(out TService? value);
+    }
+}
+namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem
+{
+    public interface IFileSystem
+    {
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemDirectory Directory { get; }
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemFile File { get; }
+        Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemPath Path { get; }
+    }
+    public interface IFileSystemDirectory
+    {
+        bool DirectoryExists(string path);
+    }
+    public interface IFileSystemFile
+    {
+        bool FileExists(string path);
+    }
+    public interface IFileSystemPath
+    {
+        char[] GetInvalidFileNameChars();
+        char[] GetInvalidPathChars();
+    }
+    public sealed class PhysicalFileSystem : Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystem
+    {
+        public PhysicalFileSystem() { }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemDirectory Directory { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemFile File { get; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem.IFileSystemPath Path { get; }
+    }
+}
+namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation
+{
+    public sealed class CommandInvocationOptions
+    {
+        public CommandInvocationOptions() { }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandFunctionResolver? FunctionResolver { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Runtime.ICommandServiceResolver? ServiceResolver { get; set; }
+    }
+}
+namespace Tenekon.CommandLine.Extensions.PolyType.Spec
+{
+    public enum ArgumentArity
+    {
+        Zero = 0,
+        ZeroOrOne = 1,
+        ExactlyOne = 2,
+        ZeroOrMore = 3,
+        OneOrMore = 4,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Parameter)]
+    public sealed class ArgumentSpecAttribute : System.Attribute
+    {
+        public ArgumentSpecAttribute() { }
+        public string[]? AllowedValues { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.ArgumentArity Arity { get; set; }
+        public string? Description { get; set; }
+        public string? HelpName { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+        public bool Required { get; set; }
+        public string? ValidationMessage { get; set; }
+        public string? ValidationPattern { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.ValidationRules ValidationRules { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Method | System.AttributeTargets.Delegate, Inherited=false)]
+    public sealed class CommandSpecAttribute : System.Attribute
+    {
+        public CommandSpecAttribute() { }
+        public string? Alias { get; set; }
+        public string[]? Aliases { get; set; }
+        public System.Type[]? Children { get; set; }
+        public string? Description { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.NameAutoGenerate NameAutoGenerate { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.NameCasingConvention NameCasingConvention { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.NamePrefixConvention NamePrefixConvention { get; set; }
+        public int Order { get; set; }
+        public System.Type? Parent { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.NameAutoGenerate ShortFormAutoGenerate { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.NamePrefixConvention ShortFormPrefixConvention { get; set; }
+        public bool TreatUnmatchedTokensAsErrors { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Parameter)]
+    public sealed class DirectiveSpecAttribute : System.Attribute
+    {
+        public DirectiveSpecAttribute() { }
+        public string? Description { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+    }
+    [System.Flags]
+    public enum NameAutoGenerate
+    {
+        None = 0,
+        Command = 1,
+        Option = 2,
+        Argument = 4,
+        Directive = 8,
+        All = 15,
+    }
+    public enum NameCasingConvention
+    {
+        None = 0,
+        LowerCase = 1,
+        UpperCase = 2,
+        TitleCase = 3,
+        PascalCase = 4,
+        CamelCase = 5,
+        KebabCase = 6,
+        SnakeCase = 7,
+    }
+    public enum NamePrefixConvention
+    {
+        None = 0,
+        SingleHyphen = 1,
+        DoubleHyphen = 2,
+        ForwardSlash = 3,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Parameter)]
+    public sealed class OptionSpecAttribute : System.Attribute
+    {
+        public OptionSpecAttribute() { }
+        public string? Alias { get; set; }
+        public string[]? Aliases { get; set; }
+        public bool AllowMultipleArgumentsPerToken { get; set; }
+        public string[]? AllowedValues { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.ArgumentArity Arity { get; set; }
+        public string? Description { get; set; }
+        public string? HelpName { get; set; }
+        public bool Hidden { get; set; }
+        public string? Name { get; set; }
+        public int Order { get; set; }
+        public bool Recursive { get; set; }
+        public bool Required { get; set; }
+        public string? ValidationMessage { get; set; }
+        public string? ValidationPattern { get; set; }
+        public Tenekon.CommandLine.Extensions.PolyType.Spec.ValidationRules ValidationRules { get; set; }
+    }
+    [System.Flags]
+    public enum ValidationRules
+    {
+        None = 0,
+        ExistingFile = 1,
+        NonExistingFile = 2,
+        ExistingDirectory = 4,
+        NonExistingDirectory = 8,
+        ExistingFileOrDirectory = 16,
+        NonExistingFileOrDirectory = 32,
+        LegalPath = 64,
+        LegalFileName = 128,
+        LegalUri = 256,
+        LegalUrl = 512,
+    }
+}
+namespace Tenekon.MethodOverloads
+{
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct | System.AttributeTargets.Interface, AllowMultiple=true)]
+    public sealed class GenerateMethodOverloadsAttribute : System.Attribute
+    {
+        public GenerateMethodOverloadsAttribute() { }
+        public System.Type[]? Matchers { get; set; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple=true)]
+    public sealed class GenerateOverloadsAttribute : System.Attribute
+    {
+        public GenerateOverloadsAttribute() { }
+        public GenerateOverloadsAttribute(string beginEnd) { }
+        public string? Begin { get; set; }
+        public string? BeginExclusive { get; set; }
+        public string? End { get; set; }
+        public string? EndExclusive { get; set; }
+        public System.Type[]? Matchers { get; set; }
+    }
+    public enum OverloadSubsequenceStrategy
+    {
+        PrefixOnly = 0,
+        UniqueBySignature = 1,
+    }
+    public enum OverloadVisibility
+    {
+        MatchTarget = 0,
+        Public = 1,
+        Internal = 2,
+        Private = 3,
+    }
+    public enum RangeAnchorMatchMode
+    {
+        TypeOnly = 0,
+        TypeAndName = 1,
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Method | System.AttributeTargets.Interface, AllowMultiple=true)]
+    public sealed class SupplyParameterTypeAttribute : System.Attribute
+    {
+        public SupplyParameterTypeAttribute(string typeParameterName, System.Type suppliedType) { }
+        public object? Group { get; set; }
+        public System.Type SuppliedType { get; }
+        public string TypeParameterName { get; }
+    }
+}

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace Tenekon.CommandLine.Extensions.PolyType.SourceGeneration;
+namespace Tenekon.CommandLine.Extensions.PolyType.SourceGenerator;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CommandSpecDiagnosticsAnalyzer : DiagnosticAnalyzer
@@ -39,25 +39,25 @@ public sealed class CommandSpecDiagnosticsAnalyzer : DiagnosticAnalyzer
 
                 foreach (var symbol in targets.Distinct(new NamedTypeSymbolComparer()))
                 {
-                    if (!IsPartial(symbol))
+                    var isDelegate = symbol.TypeKind == TypeKind.Delegate;
+
+                    if (!isDelegate && !IsPartial(symbol))
                     {
-                        endContext.ReportDiagnostic(Diagnostic.Create(
-                            GeneratorDiagnostics.TypeMustBePartial,
-                            symbol.Locations[index: 0],
-                            symbol.Name));
+                        endContext.ReportDiagnostic(
+                            Diagnostic.Create(
+                                GeneratorDiagnostics.TypeMustBePartial,
+                                symbol.Locations[index: 0],
+                                symbol.Name));
                         continue;
                     }
 
-                    if (symbol.TypeKind != TypeKind.Class
-                        || symbol.IsAbstract
-                        || symbol.IsGenericType
-                        || symbol.IsStatic)
-                    {
-                        endContext.ReportDiagnostic(Diagnostic.Create(
-                            GeneratorDiagnostics.InvalidType,
-                            symbol.Locations[index: 0],
-                            symbol.Name));
-                    }
+                    if (!isDelegate && (symbol.TypeKind != TypeKind.Class || symbol.IsAbstract || symbol.IsGenericType
+                            || symbol.IsStatic))
+                        endContext.ReportDiagnostic(
+                            Diagnostic.Create(
+                                GeneratorDiagnostics.InvalidType,
+                                symbol.Locations[index: 0],
+                                symbol.Name));
                 }
             });
 
@@ -139,7 +139,7 @@ public sealed class CommandSpecDiagnosticsAnalyzer : DiagnosticAnalyzer
 
 internal static class AttributeNames
 {
-    public const string CommandSpecAttribute = "Tenekon.CommandLine.Extensions.PolyType.CommandSpecAttribute";
+    public const string CommandSpecAttribute = "Tenekon.CommandLine.Extensions.PolyType.Spec.CommandSpecAttribute";
 }
 
 internal static class GeneratorDiagnostics

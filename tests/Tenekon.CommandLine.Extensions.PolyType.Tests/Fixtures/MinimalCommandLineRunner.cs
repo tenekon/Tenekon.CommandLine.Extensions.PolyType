@@ -1,7 +1,7 @@
 using System.CommandLine.Help;
 using Microsoft.Extensions.DependencyInjection;
 using PolyType;
-using PolyType.Abstractions;
+using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
 using Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.Fixtures;
@@ -14,14 +14,13 @@ internal static class MinimalCommandLineRunner
         string[] args,
         Action<IServiceProvider> serviceProviderSetter,
         IServiceCollection secondStageServiceCollection,
-        CommandLineSettings settings,
-        ITypeShapeProvider? commandShapeProvider)
-        where TCommand : IShapeable<TCommand>
+        CommandRuntimeSettings settings,
+        ITypeShapeProvider? commandShapeProvider) where TCommand : IShapeable<TCommand>
     {
         await using var firstStageServiceProvider = new ServiceCollection().BuildServiceProvider();
         serviceProviderSetter(firstStageServiceProvider);
 
-        var app = CommandLineApp.CreateFromType<TCommand>(settings, serviceProvider: null);
+        var app = CommandRuntime.Factory.Object.Create<TCommand>(settings, serviceResolver: null);
 
         var currentArgs = args;
         int lastResultCode;
@@ -29,22 +28,22 @@ internal static class MinimalCommandLineRunner
         {
             var result = app.Parse(currentArgs);
             var hasCalledType = result.TryGetCalledType(out var commandCallableType);
-            var isDescribing = hasCalledType
-                && commandCallableType is not null
+            var isDescribing = hasCalledType && commandCallableType is not null
                 && s_describingCommandType.IsAssignableFrom(commandCallableType);
 
             var isParseResultCircuitBreaking = result.ParseResult.Errors.Count > 0
-                || result.ParseResult.Action is HelpAction
-                || commandCallableType is null;
+                || result.ParseResult.Action is HelpAction || commandCallableType is null;
 
             if (!isParseResultCircuitBreaking && commandShapeProvider is not null)
             {
                 var commandShape = commandShapeProvider.GetTypeShape(commandCallableType!);
-                if (commandShape?.Accept(ConfigureCommandActionInvoker.Default)
-                    is Action<ConfigureCommandContext> configureCommandAction)
+                if (commandShape?.Accept(ConfigureCommandActionInvoker.Default) is Action<ConfigureCommandContext>
+                    configureCommandAction)
                 {
-                    var configureCommandContext =
-                        new ConfigureCommandContext(result, secondStageServiceCollection, commandCallableType!);
+                    var configureCommandContext = new ConfigureCommandContext(
+                        result,
+                        secondStageServiceCollection,
+                        commandCallableType!);
                     configureCommandAction(configureCommandContext);
                 }
             }
@@ -54,8 +53,7 @@ internal static class MinimalCommandLineRunner
             {
                 if (!isParseResultCircuitBreaking && !isDescribing)
                 {
-                    var secondStageServiceCollection2 =
-                        new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+                    var secondStageServiceCollection2 = new ServiceCollection();
                     foreach (var descriptor in secondStageServiceCollection)
                         ((ICollection<ServiceDescriptor>)secondStageServiceCollection2).Add(descriptor);
 
@@ -63,14 +61,18 @@ internal static class MinimalCommandLineRunner
                     serviceProviderSetter(secondStageServiceProvider);
                 }
 
-                var config = new CommandInvocationConfiguration { ServiceProvider = secondStageServiceProvider };
+                var resolver = secondStageServiceProvider is null
+                    ? null
+                    : new ServiceProviderResolver(secondStageServiceProvider);
+                var config = new CommandInvocationOptions { ServiceResolver = resolver };
                 lastResultCode = await result.RunAsync(config, CancellationToken.None);
 
-                if (isParseResultCircuitBreaking || lastResultCode != 0)
-                    break;
+                if (isParseResultCircuitBreaking || lastResultCode != 0) break;
 
-                if (commandCallableType is not null
-                    && result.Bind(commandCallableType) is IChainableCommand { ForwardedArguments.Length: > 0 } chainable)
+                if (commandCallableType is not null && result.Bind(commandCallableType) is IChainableCommand
+                    {
+                        ForwardedArguments.Length: > 0
+                    } chainable)
                 {
                     currentArgs = chainable.ForwardedArguments!;
                     continue;
@@ -78,8 +80,7 @@ internal static class MinimalCommandLineRunner
             }
             finally
             {
-                if (secondStageServiceProvider is not null)
-                    await secondStageServiceProvider.DisposeAsync();
+                if (secondStageServiceProvider is not null) await secondStageServiceProvider.DisposeAsync();
             }
 
             break;

@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Tenekon.CommandLine.Extensions.PolyType.SourceGeneration;
+using Tenekon.CommandLine.Extensions.PolyType.SourceGenerator;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.Infrastructure;
 
@@ -10,12 +10,7 @@ public sealed class AcceptanceFixture
 {
     private static readonly CSharpParseOptions s_parseOptions = new(LanguageVersion.Preview);
 
-    public AcceptanceFixture()
-    {
-        DiagnosticCases = BuildDiagnosticCases();
-    }
-
-    public IReadOnlyList<DiagnosticCaseResult> DiagnosticCases { get; }
+    public IReadOnlyList<DiagnosticCaseResult> DiagnosticCases { get; } = BuildDiagnosticCases();
 
     private static IReadOnlyList<DiagnosticCaseResult> BuildDiagnosticCases()
     {
@@ -23,8 +18,8 @@ public sealed class AcceptanceFixture
         {
             new DiagnosticCase(
                 "NotPartialCommand",
-                """
-                using Tenekon.CommandLine.Extensions.PolyType;
+                Source: """
+                using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
                 [CommandSpec]
                 public class NotPartialCommand
@@ -34,8 +29,8 @@ public sealed class AcceptanceFixture
                 ["TCL001"]),
             new DiagnosticCase(
                 "AbstractCommand",
-                """
-                using Tenekon.CommandLine.Extensions.PolyType;
+                Source: """
+                using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
                 [CommandSpec]
                 public abstract partial class AbstractCommand
@@ -45,15 +40,15 @@ public sealed class AcceptanceFixture
                 ["TCL002"]),
             new DiagnosticCase(
                 "ValidCommand",
-                """
-                using Tenekon.CommandLine.Extensions.PolyType;
+                Source: """
+                using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
                 [CommandSpec]
                 public partial class ValidCommand
                 {
                 }
                 """,
-                Array.Empty<string>())
+                [])
         };
 
         var results = new List<DiagnosticCaseResult>();
@@ -70,10 +65,7 @@ public sealed class AcceptanceFixture
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
 
-            results.Add(new DiagnosticCaseResult(
-                diagnosticCase.ClassName,
-                diagnosticCase.ExpectedIds,
-                diagnostics));
+            results.Add(new DiagnosticCaseResult(diagnosticCase.ClassName, diagnosticCase.ExpectedIds, diagnostics));
         }
 
         return results;
@@ -91,7 +83,7 @@ public sealed class AcceptanceFixture
 
         return CSharpCompilation.Create(
             "AcceptanceDiagnostics",
-            new[] { syntaxTree },
+            [syntaxTree],
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
     }

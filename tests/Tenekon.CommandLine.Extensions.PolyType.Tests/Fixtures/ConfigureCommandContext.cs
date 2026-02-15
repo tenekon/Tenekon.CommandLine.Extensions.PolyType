@@ -2,18 +2,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.Fixtures;
 
-public sealed class ConfigureCommandContext
+public sealed class ConfigureCommandContext(CommandRuntimeResult result, IServiceCollection services, Type commandType)
 {
-    public ConfigureCommandContext(CommandLineResult result, IServiceCollection services, Type commandType)
-    {
-        Result = result;
-        Services = services;
-        CommandType = commandType;
-    }
-
-    public CommandLineResult Result { get; }
-    public IServiceCollection Services { get; }
-    public Type CommandType { get; }
+    public CommandRuntimeResult Result { get; } = result;
+    public IServiceCollection Services { get; } = services;
+    public Type CommandType { get; } = commandType;
 
     public void BindCommandProperties<TCommand>(TCommand instance)
     {

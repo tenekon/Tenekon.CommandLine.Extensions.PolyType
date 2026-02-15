@@ -1,0 +1,4 @@
+root = true
+
+[.cs]
+resharper_convert_to_static_class_highlighting = none
