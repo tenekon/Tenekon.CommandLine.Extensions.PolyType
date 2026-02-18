@@ -288,3 +288,8 @@ public partial class InterfaceSpecDerivedCommand
 {
     public InterfaceSpecDerivedCommand(DummyDependency? _ = null) { }
 }
+
+public partial class ConstructorWithMemberInitialiaztionContributingParameterCommand
+{
+    public ConstructorWithMemberInitialiaztionContributingParameterCommand(DummyDependency? _ = null) { }
+}

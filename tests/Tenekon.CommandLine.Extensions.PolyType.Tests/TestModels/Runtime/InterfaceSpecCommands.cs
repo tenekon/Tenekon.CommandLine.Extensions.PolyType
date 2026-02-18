@@ -11,6 +11,8 @@ namespace Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
 [GenerateShapeFor(typeof(IInterfaceSpecAlias1))]
 [GenerateShapeFor(typeof(IInterfaceSpecAlias2))]
 [GenerateShapeFor(typeof(IInterfaceSpecInherited))]
+[GenerateShapeFor(typeof(IInterfaceSpecInheritedBase))]
+[GenerateShapeFor(typeof(IInterfaceSpecInheritedDerived))]
 public partial class InterfaceSpecShapeWitness
 {
 }
@@ -140,6 +142,32 @@ public partial class InterfaceSpecBaseCommand : IInterfaceSpecInherited
 public partial class InterfaceSpecDerivedCommand : InterfaceSpecBaseCommand
 {
     public void RunDerived() { }
+}
+
+public interface IInterfaceSpecInheritedBase
+{
+    [OptionSpec(Name = "base-opt")]
+    string Value { get; set; }
+}
+
+public interface IInterfaceSpecInheritedDerived : IInterfaceSpecInheritedBase
+{
+    [OptionSpec(Name = "derived-opt")]
+    new string Value { get; set; }
+}
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class InterfaceSpecInheritedOverrideCommand : IInterfaceSpecInheritedDerived
+{
+    public string Value { get; set; } = "";
+
+    public void Run() { }
+}
+
+public sealed class InterfaceSpecInheritedOverrideTarget : IInterfaceSpecInheritedDerived
+{
+    public string Value { get; set; } = "";
 }
 
 public sealed class InterfaceSpecTarget : IInterfaceSpecOption, IInterfaceSpecArgument

@@ -22,7 +22,7 @@ public class CommandGraphBuilderTests
         var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
         var root = definition.Graph.RootNode;
 
-        var children = root.Children.OfType<CommandModelNode>().ToList();
+        var children = root.Children.OfType<CommandObjectNode>().ToList();
         children.Count.ShouldBe(expected: 2);
         children.ShouldContain(child => child.DefinitionType == typeof(RootWithChildrenCommand.ChildACommand));
         children.ShouldContain(child => child.DefinitionType == typeof(RootWithChildrenCommand.ChildBCommand));
@@ -45,26 +45,24 @@ public class CommandGraphBuilderTests
     }
 
     [Fact]
-    public void Build_OptionNameCollisionAcrossHierarchy_Throws()
+    public void Build_OptionNameCollisionAcrossHierarchy_AllowsDuplicates()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<CollisionRootCommand>();
 
-        Should.Throw<InvalidOperationException>(() =>
-        {
-            var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
-            CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
-        });
+        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var runtime = CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
+
+        runtime.Graph.RootCommand.ShouldNotBeNull();
     }
 
     [Fact]
-    public void Build_OptionAliasCollisionAcrossHierarchy_Throws()
+    public void Build_OptionAliasCollisionAcrossHierarchy_AllowsDuplicates()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<AliasCollisionRootCommand>();
 
-        Should.Throw<InvalidOperationException>(() =>
-        {
-            var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
-            CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
-        });
+        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var runtime = CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
+
+        runtime.Graph.RootCommand.ShouldNotBeNull();
     }
 }

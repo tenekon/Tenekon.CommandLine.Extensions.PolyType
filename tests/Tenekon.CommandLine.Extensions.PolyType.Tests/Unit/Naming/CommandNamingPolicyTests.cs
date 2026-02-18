@@ -125,4 +125,82 @@ public class CommandNamingPolicyTests
         namer.AddAlias("--dup");
         Should.Throw<InvalidOperationException>(() => namer.AddAlias("--dup"));
     }
+
+    [Fact]
+    public void GetOptionName_SameNameAcrossSiblingCommands_DoesNotConflict()
+    {
+        var root = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen);
+        var childA = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            root);
+        var childB = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            root);
+
+        var optionA = childA.GetOptionName("SkipDuplicateOption");
+        var optionB = childB.GetOptionName("SkipDuplicateOption");
+
+        optionA.ShouldBe(optionB);
+    }
+
+    [Fact]
+    public void GetCommandName_AllowsDuplicateAcrossBranches()
+    {
+        var root = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen);
+        var childA = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            root);
+        var childB = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            root);
+
+        childA.GetCommandName("PackCommand");
+        childB.GetCommandName("UploadCommand");
+
+        var grandChildA = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            childA);
+        var grandChildB = new CommandNamingPolicy(
+            NameAutoGenerate.All,
+            NameCasingConvention.KebabCase,
+            NamePrefixConvention.DoubleHyphen,
+            NameAutoGenerate.All,
+            NamePrefixConvention.SingleHyphen,
+            childB);
+
+        var nameA = grandChildA.GetCommandName("PackCommand");
+        var nameB = grandChildB.GetCommandName("PackCommand");
+
+        nameA.ShouldBe(nameB);
+    }
 }

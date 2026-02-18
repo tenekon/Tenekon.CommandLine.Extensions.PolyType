@@ -11,6 +11,8 @@ internal sealed class CommandNamingPolicy(
     NamePrefixConvention? shortFormPrefixConvention,
     CommandNamingPolicy? parent = null)
 {
+    private readonly CommandNamingPolicy? _parent = parent;
+
     private static readonly string[] CommandSuffixes =
     [
         "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
@@ -37,18 +39,16 @@ internal sealed class CommandNamingPolicy(
         "CliCommandDirective", "CommandDirective", "CliDirective"
     ];
 
-    private readonly HashSet<string> _commandNames = parent?._commandNames
-        ?? new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _commandNames = new HashSet<string>(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _optionNames = parent?._optionNames ?? new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _optionNames = new HashSet<string>(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _argumentNames = parent?._argumentNames
-        ?? new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _argumentNames = new HashSet<string>(StringComparer.Ordinal);
 
     private readonly HashSet<string> _directiveNames = parent?._directiveNames
         ?? new HashSet<string>(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _aliases = parent?._aliases ?? new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _aliases = new HashSet<string>(StringComparer.Ordinal);
 
     private readonly NameAutoGenerate _nameAutoGenerate = nameAutoGenerate
         ?? parent?._nameAutoGenerate ?? NameAutoGenerate.All;
@@ -74,7 +74,8 @@ internal sealed class CommandNamingPolicy(
             CommandSuffixes,
             _nameCasingConvention);
         name = ApplyCasing(name, _nameCasingConvention);
-        EnsureUnique(_commandNames, name, "command");
+        var set = _parent?._commandNames ?? _commandNames;
+        EnsureUnique(set, name, "command");
         return name;
     }
 

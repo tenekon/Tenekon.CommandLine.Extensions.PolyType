@@ -24,6 +24,8 @@ internal sealed class ConstructorFactory : TypeShapeVisitor
         var ctor = constructorShape.GetParameterizedConstructor();
 
         var parameterSetters = constructorShape.Parameters
+                // Learning: we only must cover constructor parameters that are part of the method signature
+            .Where(x => x.Kind is ParameterKind.MethodParameter)
             .Select(parameter => (ArgumentStateSetter<TArgumentState>)parameter.Accept(
                 new ParameterSetterVisitor(),
                 typeof(TDeclaringType))!)

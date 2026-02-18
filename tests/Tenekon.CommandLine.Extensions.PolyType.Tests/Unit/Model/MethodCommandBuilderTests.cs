@@ -12,13 +12,13 @@ public class MethodCommandBuilderTests
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodRootCommand>();
 
         var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
-        var root = (CommandModelNode)definition.Graph.RootNode;
+        var root = (CommandObjectNode)definition.Graph.RootNode;
 
         root.MethodChildren.Count.ShouldBe(expected: 1);
         var methodNode = root.MethodChildren[index: 0];
         methodNode.MethodShape.Name.ShouldBe("RunChild");
 
-        var children = methodNode.Children.OfType<CommandModelNode>().ToList();
+        var children = methodNode.Children.OfType<CommandObjectNode>().ToList();
         children.Count.ShouldBe(expected: 1);
         children[index: 0].DefinitionType.ShouldBe(typeof(MethodChildCommand));
         children[index: 0].Parent.ShouldBe(methodNode);
@@ -55,7 +55,7 @@ public class MethodCommandBuilderTests
 
         var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
 
-        var root = (CommandModelNode)model.Graph.RootNode;
+        var root = (CommandObjectNode)model.Graph.RootNode;
         root.MethodChildren.Count.ShouldBe(expected: 2);
     }
 

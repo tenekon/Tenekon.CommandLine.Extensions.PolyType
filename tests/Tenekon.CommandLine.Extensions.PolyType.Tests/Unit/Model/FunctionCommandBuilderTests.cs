@@ -50,7 +50,7 @@ public class FunctionCommandBuilderTests
         var shape = (IObjectTypeShape)provider.GetTypeShape(typeof(FunctionParentCommand))!;
 
         var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
-        var root = (CommandModelNode)model.Graph.RootNode;
+        var root = (CommandObjectNode)model.Graph.RootNode;
 
         root.Children.OfType<CommandFunctionNode>()
             .ShouldContain(node => node.FunctionType == typeof(FunctionChildCommand));

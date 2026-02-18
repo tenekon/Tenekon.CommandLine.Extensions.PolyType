@@ -14,7 +14,7 @@ internal static class CommandModelGraphBuilder
         CommandModelBuildOptions? options)
     {
         var effectiveOptions = options ?? CommandModelBuildOptions.Default;
-        var typeNodes = new Dictionary<Type, CommandModelNode>();
+        var typeNodes = new Dictionary<Type, CommandObjectNode>();
         var functionNodes = new Dictionary<Type, CommandFunctionNode>();
         var rootNode = EnsureTypeNode(rootShape, provider, typeNodes, functionNodes, effectiveOptions, isRoot: true);
 
@@ -27,7 +27,7 @@ internal static class CommandModelGraphBuilder
         CommandModelBuildOptions? options)
     {
         var effectiveOptions = options ?? CommandModelBuildOptions.Default;
-        var typeNodes = new Dictionary<Type, CommandModelNode>();
+        var typeNodes = new Dictionary<Type, CommandObjectNode>();
         var functionNodes = new Dictionary<Type, CommandFunctionNode>();
         var rootNode = EnsureFunctionNode(
             functionShape,
@@ -43,7 +43,7 @@ internal static class CommandModelGraphBuilder
     private static CommandModelGraph BuildCore(
         ICommandGraphNode rootNode,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options)
     {
@@ -67,13 +67,13 @@ internal static class CommandModelGraphBuilder
 
     private static void BuildMethodNodes(
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options,
         HashSet<Type> processed,
         List<CommandMethodNode> methodNodes)
     {
-        var queue = new Queue<CommandModelNode>(typeNodes.Values);
+        var queue = new Queue<CommandObjectNode>(typeNodes.Values);
 
         while (queue.Count > 0)
         {
@@ -127,7 +127,7 @@ internal static class CommandModelGraphBuilder
 
                     SetParent(childNode, methodNode, childType);
 
-                    if (childNode is CommandModelNode childDescriptor
+                    if (childNode is CommandObjectNode childDescriptor
                         && !processed.Contains(childDescriptor.DefinitionType))
                         queue.Enqueue(childDescriptor);
                 }
@@ -138,7 +138,7 @@ internal static class CommandModelGraphBuilder
     private static void LinkRelationships(
         ITypeShapeProvider provider,
         ICommandGraphNode rootNode,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options)
     {
@@ -181,7 +181,7 @@ internal static class CommandModelGraphBuilder
             foreach (var child in node.Children)
                 Visit(child);
 
-            if (node is CommandModelNode modelNode)
+            if (node is CommandObjectNode modelNode)
                 foreach (var method in modelNode.MethodChildren)
                     Visit(method);
 
@@ -204,10 +204,10 @@ internal static class CommandModelGraphBuilder
         return current;
     }
 
-    private static CommandModelNode EnsureTypeNode(
+    private static CommandObjectNode EnsureTypeNode(
         IObjectTypeShape shape,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options,
         bool isRoot)
@@ -221,7 +221,7 @@ internal static class CommandModelGraphBuilder
         if (isRoot && spec.Parent is not null && options.RootParentHandling == RootParentHandling.Throw)
             throw new InvalidOperationException($"Root command '{type.FullName}' cannot have a parent.");
 
-        var descriptor = new CommandModelNode(type, shape, spec);
+        var descriptor = new CommandObjectNode(type, shape, spec);
         typeNodes[type] = descriptor;
 
         EnsureSpecNodes(spec, provider, typeNodes, functionNodes, options, isRoot);
@@ -243,7 +243,7 @@ internal static class CommandModelGraphBuilder
     private static CommandFunctionNode EnsureFunctionNode(
         IFunctionTypeShape functionShape,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options,
         bool isRoot)
@@ -272,7 +272,7 @@ internal static class CommandModelGraphBuilder
     private static void EnsureSpecNodes(
         CommandSpecAttribute spec,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options,
         bool isRoot)
@@ -293,7 +293,7 @@ internal static class CommandModelGraphBuilder
         ICommandGraphNode node,
         ICommandGraphNode rootNode,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options)
     {
@@ -329,7 +329,7 @@ internal static class CommandModelGraphBuilder
     private static ICommandGraphNode EnsureNodeForType(
         Type type,
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> typeNodes,
+        Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
         CommandModelBuildOptions options,
         bool isRoot)

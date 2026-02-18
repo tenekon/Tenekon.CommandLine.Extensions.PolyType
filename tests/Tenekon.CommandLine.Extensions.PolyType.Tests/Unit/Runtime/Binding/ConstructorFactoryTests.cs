@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PolyType;
 using PolyType.Abstractions;
 using Shouldly;
+using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
 using Tenekon.CommandLine.Extensions.PolyType.Tests.Fixtures;
 using Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
 
@@ -117,6 +118,19 @@ public partial class ConstructorFactoryTests
         instance.Service.Value.ShouldBe("value");
     }
 
+    [Fact]
+    public void ConstructorFactory_ExcludesMemberInitializationContributingParameter()
+    {
+        HandlerLog.Reset();
+        var fixture = new CommandRuntimeFixture();
+        var app = fixture.CreateApp<ConstructorWithMemberInitialiaztionContributingParameterCommand>(
+            serviceProvider: null);
+        var result = app.Parse(["--trigger"]);
+        var config = new CommandInvocationOptions { ServiceResolver = new ThrowingValueTypeResolver() };
+
+        Should.NotThrow(() => result.Run(config));
+    }
+
     [GenerateShape]
     public partial class ServiceCtorModel(Dep? dependency = null, int count = 3)
     {
@@ -133,5 +147,17 @@ public partial class ConstructorFactoryTests
     public sealed class Dep(string value)
     {
         public string Value { get; } = value;
+    }
+
+    private sealed class ThrowingValueTypeResolver : ICommandServiceResolver
+    {
+        public bool TryResolve<TService>(out TService? value)
+        {
+            if (typeof(TService).IsValueType)
+                throw new NullReferenceException("value type resolution");
+
+            value = default;
+            return false;
+        }
     }
 }

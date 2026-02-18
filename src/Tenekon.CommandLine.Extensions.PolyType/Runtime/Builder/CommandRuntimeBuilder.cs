@@ -32,7 +32,7 @@ internal static class CommandRuntimeBuilder
 
         var runtimeRoot = rootNode switch
         {
-            CommandModelNode typeNode => BuildTypeCommand(
+            CommandObjectNode typeNode => BuildTypeCommand(
                 typeNode,
                 bindingContext,
                 settings,
@@ -57,7 +57,7 @@ internal static class CommandRuntimeBuilder
     }
 
     private static RuntimeNode BuildTypeCommand(
-        CommandModelNode descriptor,
+        CommandObjectNode descriptor,
         BindingContext bindingContext,
         CommandRuntimeSettings settings,
         CommandNamingPolicy? parentNamer,
@@ -116,7 +116,7 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandModelNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -186,7 +186,7 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandModelNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -269,7 +269,7 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandModelNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -288,7 +288,7 @@ internal static class CommandRuntimeBuilder
 
     private static void BuildMembers(
         Command command,
-        CommandModelNode descriptor,
+        CommandObjectNode descriptor,
         BindingContext bindingContext,
         CommandRuntimeSettings settings,
         CommandNamingPolicy namer,
@@ -317,7 +317,7 @@ internal static class CommandRuntimeBuilder
     }
 
     private static void BuildOption(
-        CommandModelNode.SpecEntry entry,
+        CommandObjectNode.SpecEntry entry,
         Command command,
         BindingContext bindingContext,
         CommandRuntimeSettings settings,
@@ -339,7 +339,7 @@ internal static class CommandRuntimeBuilder
     }
 
     private static void BuildArgument(
-        CommandModelNode.SpecEntry entry,
+        CommandObjectNode.SpecEntry entry,
         Command command,
         BindingContext bindingContext,
         CommandRuntimeSettings settings,
@@ -361,7 +361,7 @@ internal static class CommandRuntimeBuilder
     }
 
     private static void BuildDirective(
-        CommandModelNode.SpecEntry entry,
+        CommandObjectNode.SpecEntry entry,
         RootCommand rootCommand,
         BindingContext bindingContext,
         CommandNamingPolicy namer,
@@ -378,7 +378,7 @@ internal static class CommandRuntimeBuilder
 
     private static void AddHandler(
         Command command,
-        CommandModelNode descriptor,
+        CommandObjectNode descriptor,
         BindingContext bindingContext,
         CommandRuntimeSettings settings)
     {
@@ -609,7 +609,7 @@ internal static class CommandRuntimeBuilder
         return bindings;
     }
 
-    private static IReadOnlyList<RuntimeValueAccessor> BuildValueAccessors(CommandModelNode descriptor)
+    private static IReadOnlyList<RuntimeValueAccessor> BuildValueAccessors(CommandObjectNode descriptor)
     {
         if (descriptor.SpecMembers.Count == 0) return [];
         var accessors = new List<RuntimeValueAccessor>(descriptor.SpecMembers.Count);
@@ -620,7 +620,7 @@ internal static class CommandRuntimeBuilder
     }
 
     private static Func<BindingContext, ParseResult, ICommandServiceResolver?, CancellationToken, object>
-        CreateCreatorFactory(CommandModelNode descriptor)
+        CreateCreatorFactory(CommandObjectNode descriptor)
     {
         var constructor = descriptor.Shape.Constructor;
         if (constructor is null)

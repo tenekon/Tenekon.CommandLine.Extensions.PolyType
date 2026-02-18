@@ -517,3 +517,4 @@ http-client.private.env.json
 .idea/**/copilot.data.migration.*.xml
 
 .ai
+.codex

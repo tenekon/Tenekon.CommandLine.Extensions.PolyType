@@ -163,3 +163,13 @@ public partial class ExplicitRequiredValueTypeOptionCommand
 
     public void Run() { }
 }
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class ConstructorWithMemberInitialiaztionContributingParameterCommand
+{
+    [OptionSpec]
+    public bool Trigger { get; set; }
+
+    public void Run() { }
+}

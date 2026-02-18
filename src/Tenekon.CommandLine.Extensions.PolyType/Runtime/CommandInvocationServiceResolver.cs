@@ -13,7 +13,10 @@ internal sealed class CommandInvocationServiceResolver(
 
     public bool TryResolve<TService>(out TService? value)
     {
-        if (inner is not null && inner.TryResolve(out value)) return true;
+        if (inner is not null)
+        {
+            return inner.TryResolve(out value);
+        }
 
         value = default;
         return false;

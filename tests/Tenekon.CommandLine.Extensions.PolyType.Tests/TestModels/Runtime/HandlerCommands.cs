@@ -205,6 +205,20 @@ public partial class RunWithOptionalServiceCommand
 
 [CommandSpec]
 [GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class RunWithOptionalValueTypeServiceCommand
+{
+    [OptionSpec(Name = "trigger")]
+    public bool Trigger { get; set; }
+
+    public void Run(int level = 7)
+    {
+        HandlerLog.RunCount++;
+        HandlerLog.LastServiceValue = level.ToString();
+    }
+}
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
 public partial class NoRunCommand
 {
     [OptionSpec(Name = "option")]

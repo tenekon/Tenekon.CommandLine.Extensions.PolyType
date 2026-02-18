@@ -66,4 +66,16 @@ public class InterfaceSpecIntegrationTests
 
         target.DefaultValue.ShouldBe("from-default");
     }
+
+    [Fact]
+    public void Bind_InterfaceSpecInheritedInterface_UsesDerivedSpec()
+    {
+        var fixture = new CommandRuntimeFixture();
+        var result = fixture.Parse<InterfaceSpecInheritedOverrideCommand>(["--derived-opt", "value"]);
+        var target = new InterfaceSpecInheritedOverrideTarget();
+
+        result.Bind<InterfaceSpecInheritedOverrideCommand, IInterfaceSpecInheritedDerived>(target);
+
+        target.Value.ShouldBe("value");
+    }
 }

@@ -4,12 +4,12 @@ using Tenekon.CommandLine.Extensions.PolyType.Spec;
 namespace Tenekon.CommandLine.Extensions.PolyType.Model;
 
 internal sealed class CommandMethodNode(
-    CommandModelNode parentType,
+    CommandObjectNode parentType,
     IMethodShape methodShape,
     CommandSpecAttribute spec,
     IReadOnlyList<ParameterSpecEntry> parameterSpecs) : ICommandGraphNode
 {
-    public CommandModelNode ParentType { get; } = parentType;
+    public CommandObjectNode ParentType { get; } = parentType;
     public IMethodShape MethodShape { get; } = methodShape;
     public CommandSpecAttribute Spec { get; } = spec;
     public IReadOnlyList<ParameterSpecEntry> ParameterSpecs { get; } = parameterSpecs;

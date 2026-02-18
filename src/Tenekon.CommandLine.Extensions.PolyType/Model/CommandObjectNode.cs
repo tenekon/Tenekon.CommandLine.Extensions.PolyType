@@ -4,7 +4,7 @@ using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Model;
 
-internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape shape, CommandSpecAttribute spec)
+internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape shape, CommandSpecAttribute spec)
     : ICommandGraphNode
 {
     private readonly List<SpecMemberAccessor> _specMembers = [];
@@ -36,17 +36,17 @@ internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape sha
         return current;
     }
 
-    public CommandModelNode? Find(Type type)
+    public CommandObjectNode? Find(Type type)
     {
         if (DefinitionType == type) return this;
-        foreach (var child in Children.OfType<CommandModelNode>())
+        foreach (var child in Children.OfType<CommandObjectNode>())
         {
             var found = child.Find(type);
             if (found is not null) return found;
         }
 
         foreach (var method in MethodChildren)
-        foreach (var child in method.Children.OfType<CommandModelNode>())
+        foreach (var child in method.Children.OfType<CommandObjectNode>())
         {
             var found = child.Find(type);
             if (found is not null) return found;
@@ -93,7 +93,7 @@ internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape sha
             if (interfaceTargets.Contains(propertyType)) continue;
             while (ancestor is not null)
             {
-                if (ancestor is CommandModelNode ancestorNode && propertyType == ancestorNode.DefinitionType)
+                if (ancestor is CommandObjectNode ancestorNode && propertyType == ancestorNode.DefinitionType)
                 {
                     var setter = PropertyAccessorFactory.CreateSetter(property);
                     if (setter is not null) _parentAccessors.Add(new ParentAccessor(propertyType, setter));
@@ -134,8 +134,19 @@ internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape sha
                 hasInterfaceSpecs = true;
 
                 if (interfaceMap.TryGetValue(property.Name, out var existing))
+                {
+                    // Allow duplicates from interface inheritance; prefer the most derived interface.
+                    if (existing.OwnerType.IsAssignableFrom(iface) || iface.IsAssignableFrom(existing.OwnerType))
+                    {
+                        if (existing.OwnerType.IsAssignableFrom(iface))
+                            interfaceMap[property.Name] = entry;
+
+                        continue;
+                    }
+
                     throw new InvalidOperationException(
                         $"Multiple interfaces provide specs for '{property.Name}' on '{shape.Type.FullName}'.");
+                }
 
                 interfaceMap[property.Name] = entry;
             }
@@ -182,9 +193,9 @@ internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape sha
         return new SpecEntry(ownerType, property, valueProperty ?? property, option, argument, directive);
     }
 
-    internal static CommandModelNode GetDescriptor(
+    internal static CommandObjectNode GetDescriptor(
         ITypeShapeProvider provider,
-        Dictionary<Type, CommandModelNode> descriptors,
+        Dictionary<Type, CommandObjectNode> descriptors,
         Type type)
     {
         if (descriptors.TryGetValue(type, out var existing)) return existing;
@@ -195,7 +206,7 @@ internal sealed class CommandModelNode(Type definitionType, IObjectTypeShape sha
         var spec = shape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
         if (spec is null) throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
 
-        var descriptor = new CommandModelNode(type, shape, spec);
+        var descriptor = new CommandObjectNode(type, shape, spec);
         descriptors[type] = descriptor;
         return descriptor;
     }
