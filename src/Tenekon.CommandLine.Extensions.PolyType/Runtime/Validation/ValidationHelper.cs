@@ -33,7 +33,7 @@ internal static class ValidationHelper
             {
                 var values = result.Tokens.Select(token => token.Value).ToArray();
                 foreach (var value in values)
-                    if (!regex.IsMatch(value))
+                    if (!Regex.IsMatch(value, pattern))
                     {
                         result.AddError(message ?? $"Value '{value}' does not match pattern '{pattern}'.");
                         return;

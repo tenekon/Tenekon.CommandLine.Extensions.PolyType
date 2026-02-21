@@ -44,6 +44,33 @@ public class CommandRuntimeContextTests
     }
 
     [Fact]
+    public void ShowValues_MethodCommand_WritesFormattedValues()
+    {
+        var (context, output) = CreateMethodContext<MethodInvocationCommand>(
+            ["[trace:dir]", "invoke", "--opt", "value", "7"]);
+
+        context.ShowValues();
+
+        var text = output.ToString();
+        text.ShouldContain("option = \"value\"");
+        text.ShouldContain("argument = 7");
+        text.ShouldContain("directive = \"dir\"");
+    }
+
+    [Fact]
+    public void ShowValues_FunctionCommand_WritesFormattedValues()
+    {
+        var (context, output) = CreateFunctionContext(["[trace:dir]", "--opt", "value", "7"]);
+
+        context.ShowValues();
+
+        var text = output.ToString();
+        text.ShouldContain("option = \"value\"");
+        text.ShouldContain("argument = 7");
+        text.ShouldContain("directive = \"dir\"");
+    }
+
+    [Fact]
     public void ShowHelp_CommandContext_WritesUsage()
     {
         var (context, output) = CreateContext<BasicRootCommand>([]);
@@ -65,6 +92,36 @@ public class CommandRuntimeContextTests
         var graph = runtime.Graph;
         var parseResult = graph.RootCommand.Parse(args);
         var context = bindingContext.CreateRuntimeContext(parseResult, serviceResolver: null);
+        return (context, output);
+    }
+
+    private static (CommandRuntimeContext Context, StringWriter Output) CreateMethodContext<TCommand>(string[] args)
+        where TCommand : IShapeable<TCommand>
+    {
+        var output = new StringWriter();
+        var settings = new CommandRuntimeSettings { Output = output, Error = output };
+        var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
+        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var runtime = CommandRuntimeBuilder.Build(definition, settings);
+        var parseResult = runtime.Graph.RootCommand.Parse(args);
+        var context = runtime.BindingContext.CreateRuntimeContext(parseResult, serviceResolver: null);
+        return (context, output);
+    }
+
+    private static (CommandRuntimeContext Context, StringWriter Output) CreateFunctionContext(string[] args)
+    {
+        var output = new StringWriter();
+        var settings = new CommandRuntimeSettings { Output = output, Error = output };
+        var shapeProvider = TypeShapeResolver.ResolveDynamicOrThrow<FunctionRootCommand, FunctionWitness>().Provider;
+        var functionShape = shapeProvider.GetTypeShape(typeof(FunctionRootCommand)) as IFunctionTypeShape
+            ?? throw new InvalidOperationException(
+                $"Function shape is missing for '{typeof(FunctionRootCommand).FullName}'.");
+        var definition = CommandModelBuilder.BuildFromFunction(functionShape, shapeProvider);
+        var runtime = CommandRuntimeBuilder.Build(definition, settings);
+        runtime.BindingContext.FunctionRegistry.Set<FunctionRootCommand>(
+            new FunctionRootCommand((_, _, _, _, _, _) => { }));
+        var parseResult = runtime.Graph.RootCommand.Parse(args);
+        var context = runtime.BindingContext.CreateRuntimeContext(parseResult, serviceResolver: null);
         return (context, output);
     }
 }

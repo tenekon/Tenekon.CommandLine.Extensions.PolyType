@@ -13,6 +13,9 @@ namespace Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
 [GenerateShapeFor(typeof(IInterfaceSpecInherited))]
 [GenerateShapeFor(typeof(IInterfaceSpecInheritedBase))]
 [GenerateShapeFor(typeof(IInterfaceSpecInheritedDerived))]
+[GenerateShapeFor(typeof(IInterfaceSpecBaseOnly))]
+[GenerateShapeFor(typeof(IInterfaceSpecChainBase))]
+[GenerateShapeFor(typeof(IInterfaceSpecChainDerived))]
 public partial class InterfaceSpecShapeWitness
 {
 }
@@ -168,6 +171,49 @@ public partial class InterfaceSpecInheritedOverrideCommand : IInterfaceSpecInher
 public sealed class InterfaceSpecInheritedOverrideTarget : IInterfaceSpecInheritedDerived
 {
     public string Value { get; set; } = "";
+}
+
+public interface IInterfaceSpecBaseOnly
+{
+    [OptionSpec(Name = "base-iface-opt")]
+    string Value { get; set; }
+}
+
+public class InterfaceSpecBaseOnlyCommand : IInterfaceSpecBaseOnly
+{
+    public string Value { get; set; } = "";
+}
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class InterfaceSpecDerivedFromBaseOnlyCommand : InterfaceSpecBaseOnlyCommand
+{
+    public void Run() { }
+}
+
+public interface IInterfaceSpecChainBase
+{
+    [OptionSpec(Name = "chain-base-opt")]
+    string BaseValue { get; set; }
+}
+
+public interface IInterfaceSpecChainDerived : IInterfaceSpecChainBase
+{
+    [OptionSpec(Name = "chain-derived-opt")]
+    string DerivedValue { get; set; }
+}
+
+public class InterfaceSpecChainBaseCommand : IInterfaceSpecChainDerived
+{
+    public string BaseValue { get; set; } = "";
+    public string DerivedValue { get; set; } = "";
+}
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class InterfaceSpecChainDerivedCommand : InterfaceSpecChainBaseCommand
+{
+    public void Run() { }
 }
 
 public sealed class InterfaceSpecTarget : IInterfaceSpecOption, IInterfaceSpecArgument

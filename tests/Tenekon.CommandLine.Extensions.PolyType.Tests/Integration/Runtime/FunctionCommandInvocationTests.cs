@@ -116,6 +116,29 @@ public class FunctionCommandInvocationTests
     }
 
     [Fact]
+    public void Invoke_FunctionCommand_ServiceFallback_Disabled_Throws()
+    {
+        var settings = new CommandRuntimeSettings
+        {
+            ShowHelpOnEmptyCommand = false,
+            AllowFunctionResolutionFromServices = false
+        };
+
+        var services = new ServiceCollection();
+        services.AddSingleton<FunctionRootCommand>((_, _, _, _, _, _) => { });
+        services.AddSingleton(new DiDependency("service"));
+        var provider = services.BuildServiceProvider();
+        var resolver = new ServiceProviderResolver(provider);
+        var shapeProvider = TypeShapeResolver.ResolveDynamicOrThrow<FunctionRootCommand, FunctionWitness>().Provider;
+
+        var app = CommandRuntime.Factory.Function.Create<FunctionRootCommand>(shapeProvider, settings, resolver);
+        var result = app.Parse(["--opt", "value", "7"]);
+        result.ParseResult.Errors.Count.ShouldBe(expected: 0);
+
+        Should.Throw<InvalidOperationException>(() => result.Run());
+    }
+
+    [Fact]
     public void Invoke_FunctionCommand_MissingInstance_Throws()
     {
         var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };

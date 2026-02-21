@@ -52,3 +52,17 @@ internal static class DiLog
         Value = null;
     }
 }
+
+[CommandSpec(TreatUnmatchedTokensAsErrors = true)]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class UnmatchedTokensErrorCommand
+{
+    public void Run() { }
+}
+
+[CommandSpec(TreatUnmatchedTokensAsErrors = false)]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class UnmatchedTokensAllowedCommand
+{
+    public void Run() { }
+}

@@ -3,7 +3,7 @@ using PolyType;
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
 
 [CommandSpec]
-[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+[GenerateShape(IncludeMethods = MethodShapeFlags.AllPublic)]
 public partial class ValidationCommand
 {
     [OptionSpec(
@@ -15,6 +15,19 @@ public partial class ValidationCommand
 
     [ArgumentSpec(Name = "argument", AllowedValues = ["1", "2"])]
     public string Argument { get; set; } = "1";
+
+    public void Run() { }
+}
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class FileSystemValidationCommand
+{
+    [OptionSpec(Name = "file", ValidationRules = ValidationRules.ExistingFile)]
+    public string File { get; set; } = "";
+
+    [ArgumentSpec(Name = "dir", ValidationRules = ValidationRules.ExistingDirectory)]
+    public string Directory { get; set; } = "";
 
     public void Run() { }
 }

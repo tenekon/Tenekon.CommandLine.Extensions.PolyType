@@ -296,6 +296,12 @@ internal static class CommandRuntimeBuilder
     {
         var targets = new List<Type> { descriptor.DefinitionType };
         targets.AddRange(descriptor.InterfaceTargets);
+        for (var baseType = descriptor.DefinitionType.BaseType;
+             baseType is not null && baseType != typeof(object);
+             baseType = baseType.BaseType)
+        {
+            targets.Add(baseType);
+        }
 
         foreach (var entry in descriptor.SpecEntries)
         {

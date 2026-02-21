@@ -70,6 +70,87 @@ public class CommandRuntimeTests
     }
 
     [Fact]
+    public void Parse_ResponseFileTokenReplacer_Error_ReturnsParseError()
+    {
+        var fixture = new CommandRuntimeFixture(settings =>
+        {
+            settings.ResponseFileTokenReplacer = (token, out replacement, out errorMessage) =>
+            {
+                replacement = null;
+                errorMessage = "token-error";
+                return false;
+            };
+        });
+
+        var app = fixture.CreateApp<ResponseFileCommand>();
+        var result = app.Parse(["@bad"]);
+
+        result.ParseResult.Errors.Count.ShouldBeGreaterThan(expected: 0);
+        result.ParseResult.Errors.Any(error => error.Message.Contains("token-error", StringComparison.Ordinal))
+            .ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Parse_TreatUnmatchedTokensAsErrors_ReportsError()
+    {
+        var fixture = new CommandRuntimeFixture();
+        var app = fixture.CreateApp<UnmatchedTokensErrorCommand>();
+        var result = app.Parse(["extra"]);
+
+        result.ParseResult.Errors.Count.ShouldBeGreaterThan(expected: 0);
+    }
+
+    [Fact]
+    public void Parse_TreatUnmatchedTokensAsErrors_Disabled_AllowsTokens()
+    {
+        var fixture = new CommandRuntimeFixture();
+        var app = fixture.CreateApp<UnmatchedTokensAllowedCommand>();
+        var result = app.Parse(["extra"]);
+
+        result.ParseResult.Errors.Count.ShouldBe(expected: 0);
+    }
+
+    [Fact]
+    public void Run_EmptyArgs_ShowHelpOnEmptyCommand_SuppressesHandler()
+    {
+        HandlerLog.Reset();
+        var fixture = new CommandRuntimeFixture(settings => settings.ShowHelpOnEmptyCommand = true);
+        var app = fixture.CreateApp<RunCommand>();
+
+        var code = app.Run([]);
+
+        code.ShouldBe(expected: 0);
+        HandlerLog.RunCount.ShouldBe(expected: 0);
+        fixture.Output.ToString().ToLowerInvariant().ShouldContain("usage");
+    }
+
+    [Fact]
+    public async Task RunAsync_EmptyArgs_ShowHelpOnEmptyCommand_SuppressesHandler()
+    {
+        HandlerLog.Reset();
+        var fixture = new CommandRuntimeFixture(settings => settings.ShowHelpOnEmptyCommand = true);
+        var app = fixture.CreateApp<RunAsyncCommand>();
+
+        var code = await app.RunAsync([]);
+
+        code.ShouldBe(expected: 0);
+        HandlerLog.RunAsyncCount.ShouldBe(expected: 0);
+        fixture.Output.ToString().ToLowerInvariant().ShouldContain("usage");
+    }
+
+    [Fact]
+    public void Run_EmptyArgs_ShowHelpOnEmptyCommandDisabled_InvokesHandler()
+    {
+        HandlerLog.Reset();
+        var fixture = new CommandRuntimeFixture(settings => settings.ShowHelpOnEmptyCommand = false);
+        var app = fixture.CreateApp<RunCommand>();
+
+        app.Run([]);
+
+        HandlerLog.RunCount.ShouldBe(expected: 1);
+    }
+
+    [Fact]
     public async Task RunAsync_CancellationToken_Propagates()
     {
         HandlerLog.Reset();
