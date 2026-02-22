@@ -10,7 +10,7 @@ public class MethodCommandNamingTests
     public void Build_RuntimeThrowsOnDuplicateMethodCommandName()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OverloadNamedCollisionCommand>();
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         Should.Throw<InvalidOperationException>(() => CommandRuntimeBuilder.Build(model, new CommandRuntimeSettings()));
     }

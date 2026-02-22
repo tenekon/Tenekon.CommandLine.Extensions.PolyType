@@ -3,9 +3,13 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using PolyType;
 using PolyType.Abstractions;
+using Tenekon.CommandLine.Extensions.PolyType.Constraints;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Model;
 
+/// <summary>
+/// Caches command models keyed by type and shape provider.
+/// </summary>
 public sealed class CommandModelRegistry
 {
     private static readonly CommandModelBuildOptions DefaultOptions = CommandModelBuildOptions.Default;
@@ -13,6 +17,10 @@ public sealed class CommandModelRegistry
     private readonly CommandModelBuildOptions _defaultsOptions;
     private readonly CommandModelRegistryInternal _modelRegistryInternal;
 
+    /// <summary>
+    /// Creates a new registry with optional default build options.
+    /// </summary>
+    /// <param name="defaultOptions">Default options used when none are provided.</param>
     public CommandModelRegistry(CommandModelBuildOptions? defaultOptions = null)
     {
         _modelRegistryInternal = new CommandModelRegistryInternal(this);
@@ -22,9 +30,12 @@ public sealed class CommandModelRegistry
     private ImmutableDictionary<ModelKey, CacheEntry> _cache =
         ImmutableDictionary.Create<ModelKey, CacheEntry>(ModelKeyComparer.Instance);
 
+    /// <summary>Gets a shared global registry instance.</summary>
     public static CommandModelRegistry Shared { get; } = new();
 
+    /// <summary>Gets the object-command registry view.</summary>
     public ICommandModelRegistry<CommandObjectConstraint> Object => _modelRegistryInternal;
+    /// <summary>Gets the function-command registry view.</summary>
     public ICommandModelRegistry<CommandFunctionConstraint> Function => _modelRegistryInternal;
 
 
@@ -69,8 +80,8 @@ public sealed class CommandModelRegistry
         {
             var model = commandTypeShape switch
             {
-                IObjectTypeShape objectShape => CommandModelBuilder.BuildFromObject(objectShape, provider, options),
-                IFunctionTypeShape functionShape => CommandModelBuilder.BuildFromFunction(
+                IObjectTypeShape objectShape => CommandModelFactory.BuildFromObject(objectShape, provider, options),
+                IFunctionTypeShape functionShape => CommandModelFactory.BuildFromFunction(
                     functionShape,
                     provider,
                     options),

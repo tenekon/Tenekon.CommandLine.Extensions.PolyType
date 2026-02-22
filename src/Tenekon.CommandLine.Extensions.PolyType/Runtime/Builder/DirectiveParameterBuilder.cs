@@ -3,13 +3,12 @@ using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Graph;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 
 internal sealed class DirectiveParameterBuilder(
     IParameterShape parameterShape,
-    DirectiveSpecAttribute spec,
+    DirectiveSpecModel spec,
     CommandNamingPolicy namer)
 {
     public DirectiveParameterBuildResult? Build()
@@ -17,7 +16,7 @@ internal sealed class DirectiveParameterBuilder(
         return (DirectiveParameterBuildResult?)parameterShape.Accept(new BuilderVisitor(spec, namer));
     }
 
-    private sealed class BuilderVisitor(DirectiveSpecAttribute spec, CommandNamingPolicy namer) : TypeShapeVisitor
+    private sealed class BuilderVisitor(DirectiveSpecModel spec, CommandNamingPolicy namer) : TypeShapeVisitor
     {
         public override object? VisitParameter<TArgumentState, TParameterType>(
             IParameterShape<TArgumentState, TParameterType> parameterShape,

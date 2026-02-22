@@ -13,7 +13,7 @@ public class MethodCommandInvocationTests
     public void Invoke_MethodCommand_BindsValuesAndServices()
     {
         MethodCommandLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -35,7 +35,7 @@ public class MethodCommandInvocationTests
     public async Task Invoke_MethodCommand_ReceivesCancellationToken()
     {
         MethodCommandLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -57,7 +57,7 @@ public class MethodCommandInvocationTests
     public void Invoke_MethodCommand_UsesSameInstance()
     {
         MethodCommandLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var app = CommandRuntime.Factory.Object.Create<MethodInstanceCommand>(settings, serviceResolver: null);
         var result = app.Parse(["--name", "value", "child"]);
         result.ParseResult.Errors.Count.ShouldBe(expected: 0);
@@ -73,7 +73,7 @@ public class MethodCommandInvocationTests
     public void Build_MethodContextNotFirst_Throws()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodContextNotFirstCommand>();
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         Should.Throw<InvalidOperationException>(() => CommandRuntimeBuilder.Build(model, new CommandRuntimeSettings()));
     }
@@ -82,7 +82,7 @@ public class MethodCommandInvocationTests
     public void Build_MethodTokenNotLast_Throws()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodTokenNotLastCommand>();
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         Should.Throw<InvalidOperationException>(() => CommandRuntimeBuilder.Build(model, new CommandRuntimeSettings()));
     }
@@ -91,7 +91,7 @@ public class MethodCommandInvocationTests
     public void Build_MethodSpecOnContext_Throws()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodSpecOnContextCommand>();
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         Should.Throw<InvalidOperationException>(() => CommandRuntimeBuilder.Build(model, new CommandRuntimeSettings()));
     }
@@ -100,7 +100,7 @@ public class MethodCommandInvocationTests
     public void Build_MethodSpecOnToken_Throws()
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodSpecOnTokenCommand>();
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         Should.Throw<InvalidOperationException>(() => CommandRuntimeBuilder.Build(model, new CommandRuntimeSettings()));
     }

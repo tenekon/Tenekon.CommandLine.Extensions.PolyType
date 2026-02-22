@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.Diagnostics.CodeAnalysis;
 using PolyType;
+using Tenekon.CommandLine.Extensions.PolyType.Constraints;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 using Tenekon.MethodOverloads;
@@ -23,10 +24,24 @@ internal interface ICommandRuntimeFactoryMatchers
         ICommandServiceResolver? serviceResolver);
 }
 
+/// <summary>
+/// Creates command runtimes for the specified constraint.
+/// </summary>
+/// <typeparam name="TConstraint">Constraint type that selects object vs function commands.</typeparam>
 [SuppressMessage("ReSharper", "TypeParameterCanBeVariant")]
 [GenerateMethodOverloads(Matchers = [typeof(ICommandRuntimeFactoryMatchers)])]
 public interface ICommandRuntimeFactory<TConstraint>
 {
+    /// <summary>
+    /// Creates a runtime for the specified command type.
+    /// </summary>
+    /// <param name="commandType">The command type.</param>
+    /// <param name="commandTypeShapeProvider">The shape provider for the command type.</param>
+    /// <param name="settings">Runtime settings.</param>
+    /// <param name="modelRegistry">Optional model registry.</param>
+    /// <param name="modelBuildOptions">Optional model build options.</param>
+    /// <param name="serviceResolver">Optional service resolver.</param>
+    /// <returns>The created runtime.</returns>
     CommandRuntime Create(
         Type commandType,
         ITypeShapeProvider commandTypeShapeProvider,
@@ -35,6 +50,16 @@ public interface ICommandRuntimeFactory<TConstraint>
         CommandModelBuildOptions? modelBuildOptions,
         ICommandServiceResolver? serviceResolver);
 
+    /// <summary>
+    /// Creates a runtime for the specified command type.
+    /// </summary>
+    /// <typeparam name="TCommandType">The command type.</typeparam>
+    /// <param name="commandTypeShapeProvider">The shape provider for the command type.</param>
+    /// <param name="settings">Runtime settings.</param>
+    /// <param name="modelRegistry">Optional model registry.</param>
+    /// <param name="modelBuildOptions">Optional model build options.</param>
+    /// <param name="serviceResolver">Optional service resolver.</param>
+    /// <returns>The created runtime.</returns>
     CommandRuntime Create<TCommandType>(
         ITypeShapeProvider commandTypeShapeProvider,
         CommandRuntimeSettings? settings,
@@ -43,6 +68,16 @@ public interface ICommandRuntimeFactory<TConstraint>
         ICommandServiceResolver? serviceResolver);
 
 #if NET
+    /// <summary>
+    /// Creates a runtime using a shape owner type.
+    /// </summary>
+    /// <typeparam name="TCommandType">The command type.</typeparam>
+    /// <typeparam name="TCommandTypeShapeOwner">The type that provides the shape.</typeparam>
+    /// <param name="settings">Runtime settings.</param>
+    /// <param name="modelRegistry">Optional model registry.</param>
+    /// <param name="modelBuildOptions">Optional model build options.</param>
+    /// <param name="serviceResolver">Optional service resolver.</param>
+    /// <returns>The created runtime.</returns>
     CommandRuntime Create<TCommandType, TCommandTypeShapeOwner>(
         CommandRuntimeSettings? settings,
         ICommandModelRegistry<TConstraint>? modelRegistry,
@@ -51,10 +86,24 @@ public interface ICommandRuntimeFactory<TConstraint>
 #endif
 }
 
+/// <summary>
+/// Extension helpers for <see cref="ICommandRuntimeFactory{TConstraint}"/>.
+/// </summary>
 [GenerateMethodOverloads(Matchers = [typeof(ICommandRuntimeFactoryMatchers)])]
 public static partial class CommandRuntimeFactoryExtensions
 {
 #if NET
+    /// <summary>
+    /// Creates a runtime using the command type as its own shape owner.
+    /// </summary>
+    /// <typeparam name="TConstraint">Constraint type that selects object vs function commands.</typeparam>
+    /// <typeparam name="TCommandType">The command type.</typeparam>
+    /// <param name="commandRuntimeFactory">The runtime factory.</param>
+    /// <param name="settings">Runtime settings.</param>
+    /// <param name="modelRegistry">Optional model registry.</param>
+    /// <param name="modelBuildOptions">Optional model build options.</param>
+    /// <param name="serviceResolver">Optional service resolver.</param>
+    /// <returns>The created runtime.</returns>
     public static CommandRuntime Create<TConstraint, TCommandType>(
         this ICommandRuntimeFactory<TConstraint> commandRuntimeFactory,
         CommandRuntimeSettings? settings,
@@ -71,10 +120,16 @@ public static partial class CommandRuntimeFactoryExtensions
 #endif
 }
 
+/// <summary>
+/// Creates runtimes from command models or command types.
+/// </summary>
 public sealed class CommandRuntimeFactory
 {
     private readonly CommandRuntimeFactoryForwarder _runtimeFactoryForwarder;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommandRuntimeFactory"/> class.
+    /// </summary>
     public CommandRuntimeFactory()
     {
         _runtimeFactoryForwarder = new CommandRuntimeFactoryForwarder(this);
@@ -160,9 +215,23 @@ public sealed class CommandRuntimeFactory
 #endif
     }
 
+    /// <summary>
+    /// Gets the object command runtime factory.
+    /// </summary>
     public ICommandRuntimeFactory<CommandObjectConstraint> Object => _runtimeFactoryForwarder;
+
+    /// <summary>
+    /// Gets the function command runtime factory.
+    /// </summary>
     public ICommandRuntimeFactory<CommandFunctionConstraint> Function => _runtimeFactoryForwarder;
 
+    /// <summary>
+    /// Creates a runtime from an already-built command model.
+    /// </summary>
+    /// <param name="model">The command model.</param>
+    /// <param name="settings">Runtime settings.</param>
+    /// <param name="serviceResolver">Optional service resolver.</param>
+    /// <returns>The created runtime.</returns>
     public CommandRuntime CreateFromModel(
         CommandModel model,
         CommandRuntimeSettings? settings,

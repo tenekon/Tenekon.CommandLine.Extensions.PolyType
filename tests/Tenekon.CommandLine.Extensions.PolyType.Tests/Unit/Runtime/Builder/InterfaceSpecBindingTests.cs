@@ -13,7 +13,7 @@ public class InterfaceSpecBindingTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceSpecConflictCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -21,7 +21,7 @@ public class InterfaceSpecBindingTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceSpecMultipleConflictCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class InterfaceSpecBindingTests
 
         Should.Throw<InvalidOperationException>(() =>
         {
-            var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+            var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
             CommandRuntimeBuilder.Build(definition, settings);
         });
     }
@@ -42,7 +42,7 @@ public class InterfaceSpecBindingTests
     {
         var settings = new CommandRuntimeSettings();
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceSpecCommand>();
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         var bindingContext = runtime.BindingContext;
 
@@ -60,10 +60,10 @@ public class InterfaceSpecBindingTests
     {
         var settings = new CommandRuntimeSettings();
         var baseShape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceSpecBaseCommand>();
-        var baseDefinition = CommandModelBuilder.BuildFromObject(baseShape, baseShape.Provider);
+        var baseDefinition = CommandModelFactory.BuildFromObject(baseShape, baseShape.Provider);
         var baseGraph = CommandRuntimeBuilder.Build(baseDefinition, settings).Graph;
         var derivedShape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceSpecDerivedCommand>();
-        var derivedDefinition = CommandModelBuilder.BuildFromObject(derivedShape, derivedShape.Provider);
+        var derivedDefinition = CommandModelFactory.BuildFromObject(derivedShape, derivedShape.Provider);
         var derivedGraph = CommandRuntimeBuilder.Build(derivedDefinition, settings).Graph;
 
         static bool IsCustomOption(Option option)

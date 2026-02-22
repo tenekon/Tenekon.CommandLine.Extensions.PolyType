@@ -2,27 +2,26 @@ using System.CommandLine;
 using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 
 internal sealed class OptionMemberBuilder(
-    IPropertyShape propertyShape,
-    IPropertyShape valueProperty,
-    OptionSpecAttribute spec,
+    IPropertyShape specProperty,
+    IPropertyShape targetProperty,
+    OptionSpecModel spec,
     CommandNamingPolicy namer,
     IFileSystem fileSystem)
 {
     public ArgumentMemberBuildResult? Build()
     {
-        return (ArgumentMemberBuildResult?)propertyShape.Accept(
-            new BuilderVisitor(spec, namer, valueProperty, fileSystem));
+        return (ArgumentMemberBuildResult?)specProperty.Accept(
+            new BuilderVisitor(spec, namer, targetProperty, fileSystem));
     }
 
     private sealed class BuilderVisitor(
-        OptionSpecAttribute spec,
+        OptionSpecModel spec,
         CommandNamingPolicy namer,
-        IPropertyShape valueProperty,
+        IPropertyShape targetProperty,
         IFileSystem fileSystem) : TypeShapeVisitor
     {
         public override object? VisitProperty<TDeclaringType, TPropertyType>(
@@ -30,7 +29,7 @@ internal sealed class OptionMemberBuilder(
             object? state = null)
         {
             var name = namer.GetOptionName(propertyShape.Name, spec.Name);
-            var required = RequiredHelper.IsRequired(valueProperty, spec);
+            var required = RequiredHelper.IsRequired(targetProperty, spec);
             var option = SymbolBuildHelper.CreateOption<TPropertyType>(name, spec, namer, required, fileSystem);
 
             var setter = propertyShape.GetSetter();

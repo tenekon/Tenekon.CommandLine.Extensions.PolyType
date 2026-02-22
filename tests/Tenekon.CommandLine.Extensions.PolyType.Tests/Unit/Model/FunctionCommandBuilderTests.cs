@@ -13,7 +13,7 @@ public class FunctionCommandBuilderTests
             .ResolveDynamicOrThrow<FunctionRootCommand, FunctionWitness>();
         var provider = functionShape.Provider;
 
-        var model = CommandModelBuilder.BuildFromFunction(functionShape, provider);
+        var model = CommandModelFactory.BuildFromFunction(functionShape, provider);
 
         model.DefinitionType.ShouldBe(typeof(FunctionRootCommand));
         model.Graph.RootNode.ShouldBeOfType<CommandFunctionNode>();
@@ -26,7 +26,7 @@ public class FunctionCommandBuilderTests
             .ResolveDynamicOrThrow<FunctionParentedRootCommand, FunctionWitness>();
         var provider = functionShape.Provider;
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromFunction(functionShape, provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromFunction(functionShape, provider));
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class FunctionCommandBuilderTests
         var provider = functionShape.Provider;
         var options = new CommandModelBuildOptions { RootParentHandling = RootParentHandling.Ignore };
 
-        var model = CommandModelBuilder.BuildFromFunction(functionShape, provider, options);
+        var model = CommandModelFactory.BuildFromFunction(functionShape, provider, options);
 
         model.DefinitionType.ShouldBe(typeof(FunctionParentedRootCommand));
         model.Graph.RootNode.Parent.ShouldBeNull();
@@ -49,7 +49,7 @@ public class FunctionCommandBuilderTests
         var provider = TypeShapeResolver.ResolveDynamicOrThrow<FunctionRootCommand, FunctionWitness>().Provider;
         var shape = (IObjectTypeShape)provider.GetTypeShape(typeof(FunctionParentCommand))!;
 
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var root = (CommandObjectNode)model.Graph.RootNode;
 
         root.Children.OfType<CommandFunctionNode>()
@@ -63,6 +63,6 @@ public class FunctionCommandBuilderTests
             .ResolveDynamicOrThrow<GenericFunctionCommand<int>, FunctionWitness>();
         var provider = functionShape.Provider;
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromFunction(functionShape, provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromFunction(functionShape, provider));
     }
 }

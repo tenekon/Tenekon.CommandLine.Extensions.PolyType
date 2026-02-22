@@ -12,8 +12,7 @@ public class BindingContextIntegrationTests
         var fixture = new CommandRuntimeFixture();
         var result = fixture.Parse<InterfaceSpecCommand>(["--iface-option", "value", "argument"]);
 
-        result.TryGetBinder(typeof(InterfaceSpecCommand), typeof(InterfaceSpecCommand), out var binder)
-            .ShouldBeTrue();
+        result.TryGetBinder(typeof(InterfaceSpecCommand), typeof(InterfaceSpecCommand), out var binder).ShouldBeTrue();
 
         binder.ShouldNotBeNull();
 
@@ -30,8 +29,7 @@ public class BindingContextIntegrationTests
         var fixture = new CommandRuntimeFixture();
         var result = fixture.Parse<InterfaceSpecCommand>(["--iface-option", "value", "argument"]);
 
-        result.TryGetBinder(typeof(InterfaceSpecCommand), typeof(IInterfaceSpecOption), out var binder)
-            .ShouldBeTrue();
+        result.TryGetBinder(typeof(InterfaceSpecCommand), typeof(IInterfaceSpecOption), out var binder).ShouldBeTrue();
 
         binder.ShouldNotBeNull();
 

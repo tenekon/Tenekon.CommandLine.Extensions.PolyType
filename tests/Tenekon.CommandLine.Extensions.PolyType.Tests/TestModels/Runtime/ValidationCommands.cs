@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using PolyType;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
@@ -11,9 +12,11 @@ public partial class ValidationCommand
         AllowedValues = ["A", "B"],
         ValidationPattern = "^[a-z]+$",
         ValidationMessage = "pattern-error")]
+    [Display(Description = "option-display-message")]
     public string? Option { get; set; }
 
     [ArgumentSpec(Name = "argument", AllowedValues = ["1", "2"])]
+    [Display(Description = "argument-display-message")]
     public string Argument { get; set; } = "1";
 
     public void Run() { }

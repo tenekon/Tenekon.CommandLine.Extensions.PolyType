@@ -118,7 +118,7 @@ public class CommandDescriptorTests
 
     private static RuntimeGraph BuildGraph(IObjectTypeShape shape, CommandRuntimeSettings settings)
     {
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         return runtime.Graph;
     }

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using PolyType;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Tests.TestModels;
@@ -133,8 +134,12 @@ public partial class MethodInvocationCommand
     [CommandSpec(Name = "invoke")]
     public void Invoke(
         CommandRuntimeContext context,
-        [OptionSpec(Name = "opt")] string option,
-        [ArgumentSpec(Name = "arg")] int argument,
+        [OptionSpec(Name = "opt")]
+        [Display(Description = "option-display-message")]
+        string option,
+        [ArgumentSpec(Name = "arg")]
+        [Display(Description = "argument-display-message")]
+        int argument,
         [DirectiveSpec(Name = "trace")] string directive,
         DiDependency dependency,
         CancellationToken token)

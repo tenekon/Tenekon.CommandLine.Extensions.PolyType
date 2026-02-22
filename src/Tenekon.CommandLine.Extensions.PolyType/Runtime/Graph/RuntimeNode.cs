@@ -1,6 +1,5 @@
 using System.CommandLine;
 using PolyType.Abstractions;
-using Tenekon.CommandLine.Extensions.PolyType.Model;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Graph;
 
@@ -20,7 +19,7 @@ internal sealed class RuntimeNode
         IFunctionTypeShape? functionShape,
         Command command,
         IReadOnlyList<RuntimeValueAccessor> valueAccessors,
-        IReadOnlyList<ParentAccessor> parentAccessors)
+        IReadOnlyList<RuntimeParentAccessor> parentAccessors)
     {
         Kind = kind;
         DefinitionType = definitionType;
@@ -35,7 +34,7 @@ internal sealed class RuntimeNode
         Type definitionType,
         Command command,
         IReadOnlyList<RuntimeValueAccessor> valueAccessors,
-        IReadOnlyList<ParentAccessor> parentAccessors)
+        IReadOnlyList<RuntimeParentAccessor> parentAccessors)
     {
         return new RuntimeNode(
             RuntimeNodeKind.Type,
@@ -86,7 +85,7 @@ internal sealed class RuntimeNode
     public RuntimeNode? Parent { get; internal set; }
     public List<RuntimeNode> Children { get; } = [];
     public IReadOnlyList<RuntimeValueAccessor> ValueAccessors { get; }
-    public IReadOnlyList<ParentAccessor> ParentAccessors { get; }
+    public IReadOnlyList<RuntimeParentAccessor> ParentAccessors { get; }
 
     public string DisplayName => Command.Name ?? DefinitionType?.Name ?? MethodShape?.Name ?? string.Empty;
 

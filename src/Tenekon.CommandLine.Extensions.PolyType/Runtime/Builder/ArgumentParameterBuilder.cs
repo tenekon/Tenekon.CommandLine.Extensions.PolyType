@@ -2,13 +2,12 @@ using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Graph;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 
 internal sealed class ArgumentParameterBuilder(
     IParameterShape parameterShape,
-    ArgumentSpecAttribute spec,
+    ArgumentSpecModel spec,
     CommandNamingPolicy namer,
     IFileSystem fileSystem)
 {
@@ -17,7 +16,10 @@ internal sealed class ArgumentParameterBuilder(
         return (ParameterBuildResult?)parameterShape.Accept(new BuilderVisitor(spec, namer, fileSystem));
     }
 
-    private sealed class BuilderVisitor(ArgumentSpecAttribute spec, CommandNamingPolicy namer, IFileSystem fileSystem)
+    private sealed class BuilderVisitor(
+        ArgumentSpecModel spec,
+        CommandNamingPolicy namer,
+        IFileSystem fileSystem)
         : TypeShapeVisitor
     {
         public override object? VisitParameter<TArgumentState, TParameterType>(

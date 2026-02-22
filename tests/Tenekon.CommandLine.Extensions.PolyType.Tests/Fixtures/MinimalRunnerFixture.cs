@@ -13,8 +13,7 @@ internal sealed class MinimalRunnerFixture
         Settings = new CommandRuntimeSettings
         {
             Output = Output,
-            Error = Error,
-            ShowHelpOnEmptyCommand = false
+            Error = Error
         };
     }
 

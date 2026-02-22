@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Text;
 using PolyType;
 using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Spec;
@@ -60,7 +59,11 @@ internal static class CommandModelGraphBuilder
         ValidateNoCycles(rootNode);
 
         foreach (var descriptor in typeNodes.Values.ToList())
+        {
+            var entries = CommandObjectNode.CollectSpecMembers(descriptor.Shape);
+            descriptor.SetSpecEntries(entries);
             descriptor.InitializeModel();
+        }
 
         return new CommandModelGraph(GetRoot(rootNode), methodNodes, functionNodes.Values.ToList());
     }
@@ -82,11 +85,12 @@ internal static class CommandModelGraphBuilder
 
             ValidateReflectionMethodSpecs(descriptor.DefinitionType);
 
-            var methods = new List<(IMethodShape Method, CommandSpecAttribute Spec)>();
+            var methods = new List<(IMethodShape Method, CommandSpecModel Spec)>();
             foreach (var method in descriptor.Shape.Methods)
             {
-                var spec = method.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
-                if (spec is null) continue;
+                var specAttribute = method.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
+                if (specAttribute is null) continue;
+                var spec = CommandSpecModel.FromAttribute(specAttribute);
 
                 if (method.DeclaringType.Type.IsInterface)
                     throw new InvalidOperationException(
@@ -98,11 +102,11 @@ internal static class CommandModelGraphBuilder
             }
 
             if (methods.Count == 0) continue;
-            ValidateMethodOverloads(descriptor.DefinitionType, methods);
+            CommandModelValidation.EnsureMethodOverloadsValid(descriptor.DefinitionType, methods);
 
             foreach (var (method, spec) in methods)
             {
-                ValidateMethodNode(descriptor.DefinitionType, method, spec);
+                CommandModelValidation.EnsureMethodNodeValid(descriptor.DefinitionType, method, spec);
                 var parameterSpecs = CollectParameterSpecs(method.Parameters);
                 var methodNode = new CommandMethodNode(descriptor, method, spec, parameterSpecs);
                 descriptor.MethodChildren.Add(methodNode);
@@ -112,7 +116,7 @@ internal static class CommandModelGraphBuilder
             foreach (var methodNode in descriptor.MethodChildren)
             {
                 var children = methodNode.Spec.Children;
-                if (children is null) continue;
+                if (children.IsDefaultOrEmpty) continue;
 
                 foreach (var childType in children)
                 {
@@ -161,8 +165,39 @@ internal static class CommandModelGraphBuilder
         if (child.Parent is not null && !ReferenceEquals(child.Parent, parent))
             throw new InvalidOperationException($"Command '{childType.FullName}' has conflicting parents.");
 
-        child.Parent = parent;
-        if (!parent.Children.Contains(child)) parent.Children.Add(child);
+        SetParentInternal(child, parent);
+
+        var parentChildren = GetChildrenMutable(parent);
+        if (!parentChildren.Contains(child)) parentChildren.Add(child);
+    }
+
+    private static void SetParentInternal(ICommandGraphNode node, ICommandGraphNode? parent)
+    {
+        switch (node)
+        {
+            case CommandObjectNode objectNode:
+                objectNode.Parent = parent;
+                break;
+            case CommandMethodNode methodNode:
+                methodNode.Parent = parent;
+                break;
+            case CommandFunctionNode functionNode:
+                functionNode.Parent = parent;
+                break;
+            default:
+                throw new InvalidOperationException("Unsupported command node.");
+        }
+    }
+
+    private static List<ICommandGraphNode> GetChildrenMutable(ICommandGraphNode node)
+    {
+        return node switch
+        {
+            CommandObjectNode objectNode => objectNode.Children,
+            CommandMethodNode methodNode => methodNode.Children,
+            CommandFunctionNode functionNode => functionNode.Children,
+            _ => throw new InvalidOperationException("Unsupported command node.")
+        };
     }
 
     private static void ValidateNoCycles(ICommandGraphNode rootNode)
@@ -215,13 +250,15 @@ internal static class CommandModelGraphBuilder
         var type = shape.Type;
         if (typeNodes.TryGetValue(type, out var existing)) return existing;
 
-        var spec = shape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
-        if (spec is null) throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var specAttribute = shape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
+        if (specAttribute is null)
+            throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var spec = CommandSpecModel.FromAttribute(specAttribute);
 
         if (isRoot && spec.Parent is not null && options.RootParentHandling == RootParentHandling.Throw)
             throw new InvalidOperationException($"Root command '{type.FullName}' cannot have a parent.");
 
-        var descriptor = new CommandObjectNode(type, shape, spec);
+        var descriptor = new CommandObjectNode(type, shape, spec, CommandHandlerConventionSpecModel.CreateDefault());
         typeNodes[type] = descriptor;
 
         EnsureSpecNodes(spec, provider, typeNodes, functionNodes, options, isRoot);
@@ -251,11 +288,12 @@ internal static class CommandModelGraphBuilder
         var type = functionShape.Type;
         if (functionNodes.TryGetValue(type, out var existing)) return existing;
 
-        var spec = functionShape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
-        if (spec is null) throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var specAttribute = functionShape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
+        if (specAttribute is null)
+            throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var spec = CommandSpecModel.FromAttribute(specAttribute);
 
-        if (type.IsGenericType || type.ContainsGenericParameters || IsGenericDeclaringType(type))
-            throw new InvalidOperationException($"Function '{type.FullName}' cannot be generic.");
+        CommandModelValidation.EnsureFunctionTypeValid(type);
 
         if (isRoot && spec.Parent is not null && options.RootParentHandling == RootParentHandling.Throw)
             throw new InvalidOperationException($"Root command '{type.FullName}' cannot have a parent.");
@@ -270,7 +308,7 @@ internal static class CommandModelGraphBuilder
     }
 
     private static void EnsureSpecNodes(
-        CommandSpecAttribute spec,
+        CommandSpecModel spec,
         ITypeShapeProvider provider,
         Dictionary<Type, CommandObjectNode> typeNodes,
         Dictionary<Type, CommandFunctionNode> functionNodes,
@@ -281,7 +319,7 @@ internal static class CommandModelGraphBuilder
             if (spec.Parent is not null)
                 EnsureNodeForType(spec.Parent, provider, typeNodes, functionNodes, options, isRoot: false);
 
-        if (spec.Children is not null)
+        if (!spec.Children.IsDefaultOrEmpty)
             foreach (var childType in spec.Children)
             {
                 if (childType is null) continue;
@@ -311,7 +349,7 @@ internal static class CommandModelGraphBuilder
                 SetParent(node, parentNode, node.CommandType ?? spec.Parent);
             }
 
-        if (spec.Children is not null)
+        if (!spec.Children.IsDefaultOrEmpty)
             foreach (var childType in spec.Children)
             {
                 if (childType is null) continue;
@@ -354,53 +392,6 @@ internal static class CommandModelGraphBuilder
         return typeof(Delegate).IsAssignableFrom(type) && type != typeof(Delegate);
     }
 
-    private static void ValidateMethodOverloads(
-        Type declaringType,
-        IReadOnlyList<(IMethodShape Method, CommandSpecAttribute Spec)> methods)
-    {
-        var byName = methods.GroupBy(entry => entry.Method.Name, StringComparer.Ordinal);
-        foreach (var group in byName)
-        {
-            if (group.Count() > 1)
-                foreach (var entry in group)
-                    if (string.IsNullOrWhiteSpace(entry.Spec.Name))
-                        throw new InvalidOperationException(
-                            $"Command method '{declaringType.FullName}.{entry.Method.Name}' requires an explicit name.");
-
-            var signatures = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var entry in group)
-            {
-                var signature = CreateMethodSignature(entry.Method);
-                if (!signatures.Add(signature))
-                    throw new InvalidOperationException(
-                        $"Command method '{declaringType.FullName}.{entry.Method.Name}' has a duplicate signature.");
-            }
-        }
-    }
-
-    private static void ValidateMethodNode(Type declaringType, IMethodShape method, CommandSpecAttribute spec)
-    {
-        if (method.IsStatic)
-            throw new InvalidOperationException(
-                $"Command method '{declaringType.FullName}.{method.Name}' cannot be static.");
-
-        if (method.DeclaringType.Type.IsInterface)
-            throw new InvalidOperationException(
-                $"Command method '{declaringType.FullName}.{method.Name}' cannot be declared on an interface.");
-
-        if (method.MethodBase?.IsGenericMethod == true)
-            throw new InvalidOperationException(
-                $"Command method '{declaringType.FullName}.{method.Name}' cannot be generic.");
-
-        if (IsGenericDeclaringType(method.DeclaringType.Type))
-            throw new InvalidOperationException(
-                $"Command method '{declaringType.FullName}.{method.Name}' cannot be declared on a generic type.");
-
-        if (spec.Parent is not null && spec.Parent != declaringType)
-            throw new InvalidOperationException(
-                $"Command method '{declaringType.FullName}.{method.Name}' can only set Parent to its declaring type.");
-    }
-
     private static void ValidateReflectionMethodSpecs(Type declaringType)
     {
         foreach (var iface in declaringType.GetInterfaces())
@@ -423,39 +414,10 @@ internal static class CommandModelGraphBuilder
                     throw new InvalidOperationException(
                         $"Command method '{current.FullName}.{method.Name}' cannot be generic.");
 
-                if (IsGenericDeclaringType(current))
+                if (CommandModelValidation.IsGenericDeclaringType(current))
                     throw new InvalidOperationException(
                         $"Command method '{current.FullName}.{method.Name}' cannot be declared on a generic type.");
             }
-    }
-
-    private static bool IsGenericDeclaringType(Type type)
-    {
-        var current = type;
-        while (current is not null)
-        {
-            if (current.IsGenericType || current.ContainsGenericParameters) return true;
-            current = current.DeclaringType;
-        }
-
-        return false;
-    }
-
-    private static string CreateMethodSignature(IMethodShape method)
-    {
-        var builder = new StringBuilder();
-        builder.Append(method.Name);
-        builder.Append(value: '(');
-        var first = true;
-        foreach (var parameter in method.Parameters)
-        {
-            if (!first) builder.Append(value: ',');
-            builder.Append(parameter.ParameterType.Type.FullName ?? parameter.ParameterType.Type.Name);
-            first = false;
-        }
-
-        builder.Append(value: ')');
-        return builder.ToString();
     }
 
     private static IReadOnlyList<ParameterSpecEntry> CollectParameterSpecs(IReadOnlyList<IParameterShape> parameters)
@@ -468,7 +430,12 @@ internal static class CommandModelGraphBuilder
             var directive = parameter.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>();
             if (option is null && argument is null && directive is null) continue;
 
-            entries.Add(new ParameterSpecEntry(parameter, option, argument, directive));
+            entries.Add(
+                new ParameterSpecEntry(
+                    parameter,
+                    option is null ? null : OptionSpecModel.FromAttribute(option),
+                    argument is null ? null : ArgumentSpecModel.FromAttribute(argument),
+                    directive is null ? null : DirectiveSpecModel.FromAttribute(directive)));
         }
 
         return entries;

@@ -2,27 +2,26 @@ using System.CommandLine;
 using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 
 internal sealed class ArgumentMemberBuilder(
-    IPropertyShape propertyShape,
-    IPropertyShape valueProperty,
-    ArgumentSpecAttribute spec,
+    IPropertyShape specProperty,
+    IPropertyShape targetProperty,
+    ArgumentSpecModel spec,
     CommandNamingPolicy namer,
     IFileSystem fileSystem)
 {
     public ArgumentMemberBuildResult? Build()
     {
-        return (ArgumentMemberBuildResult?)propertyShape.Accept(
-            new BuilderVisitor(spec, namer, valueProperty, fileSystem));
+        return (ArgumentMemberBuildResult?)specProperty.Accept(
+            new BuilderVisitor(spec, namer, targetProperty, fileSystem));
     }
 
     private sealed class BuilderVisitor(
-        ArgumentSpecAttribute spec,
+        ArgumentSpecModel spec,
         CommandNamingPolicy namer,
-        IPropertyShape valueProperty,
+        IPropertyShape targetProperty,
         IFileSystem fileSystem) : TypeShapeVisitor
     {
         public override object? VisitProperty<TDeclaringType, TPropertyType>(
@@ -30,7 +29,7 @@ internal sealed class ArgumentMemberBuilder(
             object? state = null)
         {
             var name = namer.GetArgumentName(propertyShape.Name, spec.Name);
-            var required = RequiredHelper.IsRequired(valueProperty, spec);
+            var required = RequiredHelper.IsRequired(targetProperty, spec);
             var argument = SymbolBuildHelper.CreateArgument<TPropertyType>(
                 name,
                 spec,

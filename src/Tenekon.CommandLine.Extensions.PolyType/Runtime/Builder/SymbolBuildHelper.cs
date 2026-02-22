@@ -1,10 +1,10 @@
 using System.CommandLine;
+using System.Runtime.InteropServices;
 using PolyType;
 using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Validation;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 using ArgumentArity = System.CommandLine.ArgumentArity;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
@@ -13,7 +13,7 @@ internal static class SymbolBuildHelper
 {
     public static Option<T> CreateOption<T>(
         string name,
-        OptionSpecAttribute spec,
+        OptionSpecModel spec,
         CommandNamingPolicy namer,
         bool required,
         IFileSystem fileSystem)
@@ -32,7 +32,7 @@ internal static class SymbolBuildHelper
 
         if (spec.AllowMultipleArgumentsPerToken) option.AllowMultipleArgumentsPerToken = true;
 
-        if (spec.AllowedValues is { Length: > 0 }) option.AcceptOnlyFromAmong(spec.AllowedValues);
+        if (!spec.AllowedValues.IsDefaultOrEmpty) option.AcceptOnlyFromAmong(spec.AllowedValues.ToArray());
 
         ApplyAliases(option, spec, namer, name);
 
@@ -50,7 +50,7 @@ internal static class SymbolBuildHelper
 
     public static Argument<T> CreateArgument<T>(
         string name,
-        ArgumentSpecAttribute spec,
+        ArgumentSpecModel spec,
         CommandNamingPolicy namer,
         bool required,
         ITypeShape valueType,
@@ -66,7 +66,8 @@ internal static class SymbolBuildHelper
 
         if (spec.IsAritySpecified) argument.Arity = ArgumentArityHelper.Map(spec.Arity);
 
-        if (spec.AllowedValues is { Length: > 0 }) argument.AcceptOnlyFromAmong(spec.AllowedValues);
+        if (!spec.AllowedValues.IsDefaultOrEmpty)
+            argument.AcceptOnlyFromAmong(ImmutableCollectionsMarshal.AsArray(spec.AllowedValues) ?? []);
 
         if (required && !spec.IsAritySpecified)
         {
@@ -90,7 +91,7 @@ internal static class SymbolBuildHelper
 
     private static void ApplyAliases<T>(
         Option<T> option,
-        OptionSpecAttribute spec,
+        OptionSpecModel spec,
         CommandNamingPolicy namer,
         string baseName)
     {
@@ -101,7 +102,7 @@ internal static class SymbolBuildHelper
             option.Aliases.Add(alias);
         }
 
-        if (spec.Aliases is not null)
+        if (!spec.Aliases.IsDefaultOrEmpty)
             foreach (var alias in spec.Aliases)
             {
                 if (string.IsNullOrWhiteSpace(alias)) continue;

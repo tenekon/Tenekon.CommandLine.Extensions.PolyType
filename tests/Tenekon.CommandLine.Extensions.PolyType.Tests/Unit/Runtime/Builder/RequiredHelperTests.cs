@@ -53,7 +53,7 @@ public class RequiredHelperTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
         var property = shape.Properties.First(p => p.Name == propertyName);
-        var spec = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!;
+        var spec = OptionSpecModel.FromAttribute(property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
         var builder = new OptionMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
         var result = builder.Build();

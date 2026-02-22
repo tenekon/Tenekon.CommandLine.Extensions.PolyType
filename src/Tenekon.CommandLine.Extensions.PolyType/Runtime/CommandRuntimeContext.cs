@@ -6,6 +6,9 @@ using Tenekon.CommandLine.Extensions.PolyType.Runtime.Graph;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime;
 
+/// <summary>
+/// Provides runtime helpers for an executing command.
+/// </summary>
 public sealed class CommandRuntimeContext
 {
     private readonly RuntimeNode _rootNode;
@@ -25,15 +28,25 @@ public sealed class CommandRuntimeContext
         FunctionResolver = functionResolver;
     }
 
+    /// <summary>
+    /// Gets the underlying parse result.
+    /// </summary>
     public ParseResult ParseResult { get; }
     internal BindingContext BindingContext { get; }
     internal ICommandFunctionResolver? FunctionResolver { get; }
 
+    /// <summary>
+    /// Determines whether the invocation had no command tokens.
+    /// </summary>
+    /// <returns><see langword="true" /> when no command was provided; otherwise <see langword="false" />.</returns>
     public bool IsEmptyCommand()
     {
         return ParseResult.Tokens.Count == 0;
     }
 
+    /// <summary>
+    /// Displays help for the current command.
+    /// </summary>
     public void ShowHelp()
     {
         var command = ParseResult.CommandResult?.Command;
@@ -56,11 +69,17 @@ public sealed class CommandRuntimeContext
             });
     }
 
+    /// <summary>
+    /// Displays the command hierarchy to the configured output.
+    /// </summary>
     public void ShowHierarchy()
     {
         WriteHierarchy(_rootNode, indent: 0);
     }
 
+    /// <summary>
+    /// Displays the bound values for the current command.
+    /// </summary>
     public void ShowValues()
     {
         if (!BindingContext.TryGetCalledNode(ParseResult, out var node) || node is null) return;
@@ -76,7 +95,8 @@ public sealed class CommandRuntimeContext
         foreach (var member in node.ValueAccessors)
         {
             var value = member.Getter(instance, ParseResult);
-            _settings.Output.WriteLine($"{member.DisplayName} = {FormatValue(value)}");
+            _settings.Output.WriteLine(
+                LocalizationResources.ShowValuesLineFormat(member.DisplayName, FormatValue(value)));
         }
     }
 
@@ -89,7 +109,7 @@ public sealed class CommandRuntimeContext
 
     private static string FormatValue(object? value)
     {
-        if (value is null) return "null";
+        if (value is null) return LocalizationResources.ShowValuesNull();
         if (value is string str) return $"\"{str}\"";
         if (value is IEnumerable enumerable && value is not string)
         {

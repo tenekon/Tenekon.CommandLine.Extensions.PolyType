@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.CommandLine;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
@@ -7,6 +8,18 @@ using Tenekon.CommandLine.Extensions.PolyType.Runtime.Graph;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
+
+file static class Extensions
+{
+    public static int FirstIndexOfType<T, TDerived>(this IList<T> source) where TDerived : T
+    {
+        for (var i = 0; i < source.Count; i++)
+            if (source[i] is TDerived)
+                return i;
+
+        return -1;
+    }
+}
 
 internal readonly record struct RuntimeBuildResult(RuntimeGraph Graph, BindingContext BindingContext);
 
@@ -23,6 +36,7 @@ internal static class CommandRuntimeBuilder
         {
             AllowFunctionResolutionFromServices = settings.AllowFunctionResolutionFromServices
         };
+
         bindingContext.DefaultFunctionResolver = FunctionResolverChain.Create(
             new[] { bindingContext.FunctionRegistry }.Concat(settings.FunctionResolvers));
 
@@ -93,14 +107,11 @@ internal static class CommandRuntimeBuilder
         bindingContext.CreatorMap[descriptor.DefinitionType] = CreateCreatorFactory(descriptor);
 
         BuildMembers(command, descriptor, bindingContext, settings, namer, rootCommand);
-        AddHandler(command, descriptor, bindingContext, settings);
+        AddHandler(command, descriptor, bindingContext, settings, descriptor.HandlerConvention);
 
         var valueAccessors = BuildValueAccessors(descriptor);
-        var runtime = RuntimeNode.CreateType(
-            descriptor.DefinitionType,
-            command,
-            valueAccessors,
-            descriptor.ParentAccessors);
+        var parentAccessors = BuildParentAccessors(descriptor);
+        var runtime = RuntimeNode.CreateType(descriptor.DefinitionType, command, valueAccessors, parentAccessors);
 
         foreach (var method in descriptor.MethodChildren.OrderBy(static child => child.Spec.Order)
                      .ThenBy(static child => child.MethodShape.Name, StringComparer.Ordinal))
@@ -116,7 +127,12 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(
+                    typeChild,
+                    bindingContext,
+                    settings,
+                    namer,
+                    rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -173,11 +189,9 @@ internal static class CommandRuntimeBuilder
             bindingContext,
             settings);
 
-        command.SetAction(async (parseResult, cancellationToken) =>
-        {
-            return await handler.InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-        });
+        command.SetAction(async (parseResult, cancellationToken) => await handler
+            .InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false));
 
         var runtime = RuntimeNode.CreateMethod(methodNode.MethodShape, command, valueAccessors);
 
@@ -186,7 +200,12 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(
+                    typeChild,
+                    bindingContext,
+                    settings,
+                    namer,
+                    rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -252,11 +271,9 @@ internal static class CommandRuntimeBuilder
             bindingContext,
             settings);
 
-        command.SetAction(async (parseResult, cancellationToken) =>
-        {
-            return await handler.InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-        });
+        command.SetAction(async (parseResult, cancellationToken) => await handler
+            .InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false));
 
         var runtime = RuntimeNode.CreateFunction(
             functionNode.FunctionType,
@@ -269,7 +286,12 @@ internal static class CommandRuntimeBuilder
         {
             var childRuntime = child switch
             {
-                CommandObjectNode typeChild => BuildTypeCommand(typeChild, bindingContext, settings, namer, rootCommand),
+                CommandObjectNode typeChild => BuildTypeCommand(
+                    typeChild,
+                    bindingContext,
+                    settings,
+                    namer,
+                    rootCommand),
                 CommandFunctionNode functionChild => BuildFunctionCommand(
                     functionChild,
                     bindingContext,
@@ -299,9 +321,7 @@ internal static class CommandRuntimeBuilder
         for (var baseType = descriptor.DefinitionType.BaseType;
              baseType is not null && baseType != typeof(object);
              baseType = baseType.BaseType)
-        {
             targets.Add(baseType);
-        }
 
         foreach (var entry in descriptor.SpecEntries)
         {
@@ -332,8 +352,8 @@ internal static class CommandRuntimeBuilder
         Type definitionType)
     {
         var builder = new OptionMemberBuilder(
-            entry.Property,
-            entry.ValueProperty,
+            entry.SpecProperty,
+            entry.TargetProperty,
             entry.Option!,
             namer,
             settings.FileSystem);
@@ -354,8 +374,8 @@ internal static class CommandRuntimeBuilder
         Type definitionType)
     {
         var builder = new ArgumentMemberBuilder(
-            entry.Property,
-            entry.ValueProperty,
+            entry.SpecProperty,
+            entry.TargetProperty,
             entry.Argument!,
             namer,
             settings.FileSystem);
@@ -374,7 +394,7 @@ internal static class CommandRuntimeBuilder
         IReadOnlyList<Type> targets,
         Type definitionType)
     {
-        var builder = new DirectiveMemberBuilder(entry.Property, entry.Directive!, namer);
+        var builder = new DirectiveMemberBuilder(entry.SpecProperty, entry.Directive!, namer);
         var result = builder.Build();
         if (result is null) return;
 
@@ -386,16 +406,19 @@ internal static class CommandRuntimeBuilder
         Command command,
         CommandObjectNode descriptor,
         BindingContext bindingContext,
-        CommandRuntimeSettings settings)
+        CommandRuntimeSettings settings,
+        CommandHandlerConventionSpecModel handlerConvention)
     {
-        var handler = CommandHandlerFactory.TryCreateHandler(descriptor.Shape, bindingContext, settings);
+        var handler = CommandHandlerFactory.TryCreateHandler(
+            descriptor.Shape,
+            bindingContext,
+            settings,
+            handlerConvention);
         if (handler is null) return;
 
-        command.SetAction(async (parseResult, cancellationToken) =>
-        {
-            return await handler.InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-        });
+        command.SetAction(async (parseResult, cancellationToken) => await handler
+            .InvokeAsync(parseResult, bindingContext.CurrentServiceResolver, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false));
     }
 
     private static MethodParameterBindingInfo[] BuildMethodParameters(
@@ -620,7 +643,28 @@ internal static class CommandRuntimeBuilder
         if (descriptor.SpecMembers.Count == 0) return [];
         var accessors = new List<RuntimeValueAccessor>(descriptor.SpecMembers.Count);
         foreach (var member in descriptor.SpecMembers)
-            accessors.Add(new RuntimeValueAccessor(member.DisplayName, (instance, _) => member.Getter(instance!)));
+        {
+            var getter = PropertyAccessorFactory.CreateGetter(member.SpecProperty);
+            accessors.Add(
+                new RuntimeValueAccessor(
+                    member.DisplayName,
+                    (instance, _) => getter is null ? null : getter(instance!)));
+        }
+
+        return accessors;
+    }
+
+    private static IReadOnlyList<RuntimeParentAccessor> BuildParentAccessors(CommandObjectNode descriptor)
+    {
+        if (descriptor.ParentAccessors.Count == 0) return [];
+
+        var accessors = new List<RuntimeParentAccessor>(descriptor.ParentAccessors.Count);
+        foreach (var accessor in descriptor.ParentAccessors)
+        {
+            var setter = PropertyAccessorFactory.CreateSetter(accessor.Property);
+            if (setter is null) continue;
+            accessors.Add(new RuntimeParentAccessor(accessor.ParentType, setter));
+        }
 
         return accessors;
     }
@@ -644,15 +688,39 @@ internal static class CommandRuntimeBuilder
 
     private static void AddBuiltInSymbols(RootCommand rootCommand, CommandRuntimeSettings settings)
     {
-        rootCommand.Add(new HelpOption());
-        rootCommand.Add(new VersionOption());
+        Sync(rootCommand.Options, settings.EnableHelpOption, static () => new HelpOption());
+        Sync(rootCommand.Options, settings.EnableVersionOption, static () => new VersionOption());
 
-        if (settings.EnableSuggestDirective) rootCommand.Add(new SuggestDirective());
-        if (settings.EnableDiagramDirective) rootCommand.Add(new DiagramDirective());
-        if (settings.EnableEnvironmentVariablesDirective) rootCommand.Add(new EnvironmentVariablesDirective());
+        Sync(rootCommand.Directives, settings.EnableSuggestDirective, static () => new SuggestDirective());
+        Sync(rootCommand.Directives, settings.EnableDiagramDirective, static () => new DiagramDirective());
+
+        Sync(
+            rootCommand.Directives,
+            settings.EnableEnvironmentVariablesDirective,
+            static () => new EnvironmentVariablesDirective());
+
+        return;
+
+        void Sync<TBase, TDirective>(IList<TBase> source, bool enabled, Func<TDirective> factory)
+            where TDirective : TBase
+        {
+            var index = source.FirstIndexOfType<TBase, TDirective>();
+            if (enabled)
+            {
+                if (index == -1) source.Add(factory());
+            }
+            else if (index >= 0)
+            {
+                source.RemoveAt(index);
+            }
+        }
     }
 
-    private static void TryAddAliases(Command command, string? alias, string[]? aliases, CommandNamingPolicy namer)
+    private static void TryAddAliases(
+        Command command,
+        string? alias,
+        ImmutableArray<string> aliases,
+        CommandNamingPolicy namer)
     {
         if (!string.IsNullOrWhiteSpace(alias))
         {
@@ -661,7 +729,7 @@ internal static class CommandRuntimeBuilder
             command.Aliases.Add(normalized);
         }
 
-        if (aliases is not null)
+        if (!aliases.IsDefaultOrEmpty)
             foreach (var entry in aliases)
             {
                 if (string.IsNullOrWhiteSpace(entry)) continue;

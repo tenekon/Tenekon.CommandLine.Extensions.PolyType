@@ -142,7 +142,7 @@ public class CommandRuntimeTests
     public void Run_EmptyArgs_ShowHelpOnEmptyCommandDisabled_InvokesHandler()
     {
         HandlerLog.Reset();
-        var fixture = new CommandRuntimeFixture(settings => settings.ShowHelpOnEmptyCommand = false);
+        var fixture = new CommandRuntimeFixture();
         var app = fixture.CreateApp<RunCommand>();
 
         app.Run([]);
@@ -154,7 +154,7 @@ public class CommandRuntimeTests
     public async Task RunAsync_CancellationToken_Propagates()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -174,7 +174,7 @@ public class CommandRuntimeTests
     public async Task RunAsync_UsesProvidedServiceProvider()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var app = CommandRuntime.Factory.Object.Create<RunAsyncWithServiceAndTokenCommand>(
             settings,
             serviceResolver: null);

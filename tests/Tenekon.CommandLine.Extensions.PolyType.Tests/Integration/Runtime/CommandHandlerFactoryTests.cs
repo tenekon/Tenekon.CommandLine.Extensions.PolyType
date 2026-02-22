@@ -24,7 +24,7 @@ public class CommandHandlerFactoryTests
     public void TryCreateHandler_BothRunAndRunAsync_PrefersAsync()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunAndRunAsyncCommand>(["--trigger"], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -37,7 +37,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunCommand_InvokesRun()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunCommand>(["--trigger"], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -49,7 +49,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunReturnsInt_ReturnsCode()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunReturnsIntCommand>(["--trigger"], settings);
 
         var code = handler.Invoke(parseResult, arg2: null);
@@ -61,7 +61,7 @@ public class CommandHandlerFactoryTests
     public async Task InvokeAsync_RunAsyncReturnsInt_ReturnsCode()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunAsyncReturnsIntCommand>(["--trigger"], settings);
         var code = await handler.InvokeAsync(parseResult, arg2: null, CancellationToken.None);
 
@@ -73,7 +73,7 @@ public class CommandHandlerFactoryTests
     public async Task InvokeAsync_RunAsyncWithCancellationToken_ResolvesToken()
     {
         EdgeCaseLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
         var (handler, parseResult, _) = CreateHandler<RunAsyncWithCancellationTokenCommand>([], settings);
@@ -87,7 +87,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunWithContext_IncludesContext()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunWithContextCommand>(["--trigger"], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -100,7 +100,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunWithServiceParameter_ResolvesDependency()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -117,7 +117,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunWithContextAndService_ResolvesDependencyAndContext()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -136,7 +136,7 @@ public class CommandHandlerFactoryTests
     public async Task InvokeAsync_RunAsyncWithServiceAndCancellationToken_ResolvesDependencyAndToken()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -156,7 +156,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunWithRequiredServiceMissing_Throws()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunWithRequiredServiceCommand>(["--trigger"], settings);
 
         Should.Throw<InvalidOperationException>(() => handler.Invoke(parseResult, arg2: null));
@@ -166,7 +166,7 @@ public class CommandHandlerFactoryTests
     public void Invoke_RunWithOptionalServiceMissing_UsesDefault()
     {
         HandlerLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunWithOptionalServiceCommand>(["--trigger"], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -179,7 +179,7 @@ public class CommandHandlerFactoryTests
     public void TryCreateHandler_ContextNotFirst_FallsBackToHelp()
     {
         EdgeCaseLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, output) = CreateHandler<RunWithContextNotFirstCommand>([], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -192,7 +192,7 @@ public class CommandHandlerFactoryTests
     public void TryCreateHandler_CancellationTokenNotLast_FallsBackToHelp()
     {
         EdgeCaseLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, output) = CreateHandler<RunAsyncWithTokenNotLastCommand>([], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -205,7 +205,7 @@ public class CommandHandlerFactoryTests
     public void TryCreateHandler_PrivateRun_IgnoresAndFallsBackToHelp()
     {
         EdgeCaseLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, output) = CreateHandler<RunPrivateCommand>([], settings);
 
         handler.Invoke(parseResult, arg2: null);
@@ -218,7 +218,7 @@ public class CommandHandlerFactoryTests
     public void TryCreateHandler_RunOverload_UsesFirstShapeMethod()
     {
         EdgeCaseLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var (handler, parseResult, _) = CreateHandler<RunOverloadConflictCommand>([], settings);
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<RunOverloadConflictCommand>();
         var selected = shape.Methods.First(method => method.Name == "Run");
@@ -271,11 +271,11 @@ public class CommandHandlerFactoryTests
         settings.Error = output;
 
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         var bindingContext = runtime.BindingContext;
         var parseResult = runtime.Graph.RootCommand.Parse(args);
-        var handler = CommandHandlerFactory.TryCreateHandler(shape, bindingContext, settings);
+        var handler = CommandHandlerFactory.TryCreateHandler(shape, bindingContext, settings, convention: null);
 
         handler.ShouldNotBeNull();
         return (handler!, parseResult, output);

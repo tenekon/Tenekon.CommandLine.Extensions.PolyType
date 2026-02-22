@@ -11,7 +11,7 @@ public class CommandGraphBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MissingCommandSpec>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class CommandGraphBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<RootWithChildrenCommand>();
 
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var root = definition.Graph.RootNode;
 
         var children = root.Children.OfType<CommandObjectNode>().ToList();
@@ -33,7 +33,7 @@ public class CommandGraphBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ConflictingParentRoot>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class CommandGraphBuilderTests
     {
         var shapeA = (IObjectTypeShape)TypeShapeResolver.Resolve<CycleA>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shapeA, shapeA.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shapeA, shapeA.Provider));
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class CommandGraphBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<CollisionRootCommand>();
 
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
 
         runtime.Graph.RootCommand.ShouldNotBeNull();
@@ -60,7 +60,7 @@ public class CommandGraphBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<AliasCollisionRootCommand>();
 
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, new CommandRuntimeSettings());
 
         runtime.Graph.RootCommand.ShouldNotBeNull();

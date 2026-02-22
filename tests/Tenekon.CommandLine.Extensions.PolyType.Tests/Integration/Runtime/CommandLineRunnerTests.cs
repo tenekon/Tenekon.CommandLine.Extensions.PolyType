@@ -9,10 +9,7 @@ public class CommandLineRunnerTests
     [Fact]
     public void Create_WithSettings_RunsSuccessfully()
     {
-        var settings = new CommandRuntimeSettings
-        {
-            ShowHelpOnEmptyCommand = false
-        };
+        var settings = new CommandRuntimeSettings();
 
         var cliApp = CommandRuntime.Factory.Object.Create<BasicRootCommand>(settings);
         cliApp.ShouldNotBeNull();

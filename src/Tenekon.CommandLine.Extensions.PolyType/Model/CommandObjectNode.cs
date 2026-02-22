@@ -4,29 +4,38 @@ using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Model;
 
-internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape shape, CommandSpecAttribute spec)
-    : ICommandGraphNode
+internal sealed class CommandObjectNode(
+    Type definitionType,
+    IObjectTypeShape shape,
+    CommandSpecModel spec,
+    CommandHandlerConventionSpecModel? handlerConvention = null) : ICommandGraphNode
 {
-    private readonly List<SpecMemberAccessor> _specMembers = [];
-    private readonly List<ParentAccessor> _parentAccessors = [];
+    private readonly List<SpecMemberEntry> _specMembers = [];
+    private readonly List<ParentAccessorEntry> _parentAccessors = [];
     private readonly List<SpecEntry> _specEntries = [];
     private readonly List<Type> _interfaceTargets = [];
     private bool _initialized;
 
     public Type DefinitionType { get; } = definitionType;
     public IObjectTypeShape Shape { get; } = shape;
-    public CommandSpecAttribute Spec { get; } = spec;
-    public ICommandGraphNode? Parent { get; set; }
+    public CommandSpecModel Spec { get; } = spec;
+
+    public CommandHandlerConventionSpecModel HandlerConvention { get; } = handlerConvention
+        ?? CommandHandlerConventionSpecModel.CreateDefault();
+
+    public ICommandGraphNode? Parent { get; internal set; }
     public List<ICommandGraphNode> Children { get; } = [];
     public List<CommandMethodNode> MethodChildren { get; } = [];
 
-    public IReadOnlyList<SpecMemberAccessor> SpecMembers => _specMembers;
-    public IReadOnlyList<ParentAccessor> ParentAccessors => _parentAccessors;
+    public IReadOnlyList<SpecMemberEntry> SpecMembers => _specMembers;
+    public IReadOnlyList<ParentAccessorEntry> ParentAccessors => _parentAccessors;
     public IReadOnlyList<SpecEntry> SpecEntries => _specEntries;
     public IReadOnlyList<Type> InterfaceTargets => _interfaceTargets;
 
     public string DisplayName => DefinitionType.Name;
     public Type? CommandType => DefinitionType;
+
+    IReadOnlyList<ICommandGraphNode> ICommandGraphNode.Children => Children;
 
     public ICommandGraphNode GetRoot()
     {
@@ -60,34 +69,49 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
         if (_initialized) return;
         _initialized = true;
 
-        var members = CollectSpecMembers(Shape, out var interfaceTargets)
-            .OrderBy(entry => entry.Option?.Order ?? entry.Argument?.Order ?? entry.Directive?.Order ?? 0)
-            .ThenBy(entry => entry.Property.Position)
-            .ToList();
+        var specPropertyNames = new HashSet<string>(StringComparer.Ordinal);
 
-        _specEntries.AddRange(members);
-        _interfaceTargets.AddRange(interfaceTargets);
-
-        foreach (var entry in members)
+        foreach (var entry in _specEntries)
         {
-            if (entry.Option is null && entry.Argument is null) continue;
-            var getter = PropertyAccessorFactory.CreateGetter(entry.Property);
-            _specMembers.Add(new SpecMemberAccessor(entry.Property.Name, getter ?? (_ => null)));
+            if (entry.OwnerType.IsInterface)
+                if (!_interfaceTargets.Contains(entry.OwnerType))
+                    _interfaceTargets.Add(entry.OwnerType);
+
+            if (entry.Option is not null || entry.Argument is not null || entry.Directive is not null)
+                specPropertyNames.Add(entry.SpecProperty.Name);
         }
 
-        BuildParentAccessors(interfaceTargets);
+        var orderedEntries = _specEntries
+            .OrderBy(entry => entry.Option?.Order ?? entry.Argument?.Order ?? entry.Directive?.Order ?? 0)
+            .ThenBy(entry => entry.SpecProperty.Position)
+            .ToList();
+
+        foreach (var entry in orderedEntries)
+        {
+            if (entry.Option is null && entry.Argument is null) continue;
+            _specMembers.Add(new SpecMemberEntry(entry.SpecProperty.Name, entry.SpecProperty));
+        }
+
+        BuildParentAccessors([.._interfaceTargets], specPropertyNames);
     }
 
-    private void BuildParentAccessors(HashSet<Type> interfaceTargets)
+    internal void SetSpecEntries(IEnumerable<SpecEntry> entries)
+    {
+        if (_initialized)
+            throw new InvalidOperationException("Spec entries cannot be modified after initialization.");
+
+        _specEntries.Clear();
+        _specEntries.AddRange(entries);
+    }
+
+    private void BuildParentAccessors(HashSet<Type> interfaceTargets, HashSet<string> specPropertyNames)
     {
         var ancestor = Parent;
         if (ancestor is null) return;
 
         foreach (var property in Shape.Properties)
         {
-            if (property.AttributeProvider.IsDefined<OptionSpecAttribute>()) continue;
-            if (property.AttributeProvider.IsDefined<ArgumentSpecAttribute>()) continue;
-            if (property.AttributeProvider.IsDefined<DirectiveSpecAttribute>()) continue;
+            if (specPropertyNames.Contains(property.Name)) continue;
 
             var propertyType = property.PropertyType.Type;
             if (interfaceTargets.Contains(propertyType)) continue;
@@ -95,8 +119,7 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
             {
                 if (ancestor is CommandObjectNode ancestorNode && propertyType == ancestorNode.DefinitionType)
                 {
-                    var setter = PropertyAccessorFactory.CreateSetter(property);
-                    if (setter is not null) _parentAccessors.Add(new ParentAccessor(propertyType, setter));
+                    _parentAccessors.Add(new ParentAccessorEntry(propertyType, property));
 
                     break;
                 }
@@ -106,14 +129,11 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
         }
     }
 
-    private static IReadOnlyList<SpecEntry> CollectSpecMembers(
-        IObjectTypeShape shape,
-        out HashSet<Type> interfaceTargets)
+    internal static IReadOnlyList<SpecEntry> CollectSpecMembers(IObjectTypeShape shape)
     {
         var interfaceMap = new Dictionary<string, SpecEntry>(StringComparer.Ordinal);
         var classPropertiesByName = shape.Properties.GroupBy(property => property.Name, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-        var interfaceTypes = new HashSet<Type>();
         foreach (var iface in shape.Type.GetInterfaces())
         {
             if (shape.Provider.GetTypeShape(iface) is not IObjectTypeShape ifaceShape)
@@ -125,13 +145,11 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
                 continue;
             }
 
-            var hasInterfaceSpecs = false;
             foreach (var property in ifaceShape.Properties)
             {
-                classPropertiesByName.TryGetValue(property.Name, out var valueProperty);
-                var entry = CreateSpecEntry(property, iface, valueProperty);
+                classPropertiesByName.TryGetValue(property.Name, out var targetProperty);
+                var entry = CreateSpecEntry(property, iface, targetProperty);
                 if (entry is null) continue;
-                hasInterfaceSpecs = true;
 
                 if (interfaceMap.TryGetValue(property.Name, out var existing))
                 {
@@ -150,8 +168,6 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
 
                 interfaceMap[property.Name] = entry;
             }
-
-            if (hasInterfaceSpecs) interfaceTypes.Add(iface);
         }
 
         var classEntries = new List<SpecEntry>();
@@ -167,7 +183,6 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
             classEntries.Add(entry);
         }
 
-        interfaceTargets = interfaceTypes;
         return interfaceMap.Values.Concat(classEntries).ToList();
     }
 
@@ -183,14 +198,20 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
         return false;
     }
 
-    private static SpecEntry? CreateSpecEntry(IPropertyShape property, Type ownerType, IPropertyShape? valueProperty)
+    private static SpecEntry? CreateSpecEntry(IPropertyShape specProperty, Type ownerType, IPropertyShape? targetProperty)
     {
-        var option = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>();
-        var argument = property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>();
-        var directive = property.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>();
+        var option = specProperty.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>();
+        var argument = specProperty.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>();
+        var directive = specProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>();
         if (option is null && argument is null && directive is null) return null;
 
-        return new SpecEntry(ownerType, property, valueProperty ?? property, option, argument, directive);
+        return new SpecEntry(
+            ownerType,
+            specProperty,
+            targetProperty ?? specProperty,
+            option is null ? null : OptionSpecModel.FromAttribute(option),
+            argument is null ? null : ArgumentSpecModel.FromAttribute(argument),
+            directive is null ? null : DirectiveSpecModel.FromAttribute(directive));
     }
 
     internal static CommandObjectNode GetDescriptor(
@@ -203,19 +224,25 @@ internal sealed class CommandObjectNode(Type definitionType, IObjectTypeShape sh
         var shape = provider.GetTypeShape(type) as IObjectTypeShape
             ?? throw new InvalidOperationException($"Type '{type.FullName}' is not shapeable.");
 
-        var spec = shape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
-        if (spec is null) throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var specAttribute = shape.AttributeProvider.GetCustomAttribute<CommandSpecAttribute>();
+        if (specAttribute is null)
+            throw new InvalidOperationException($"Type '{type.FullName}' is missing [CommandSpec].");
+        var spec = CommandSpecModel.FromAttribute(specAttribute);
 
-        var descriptor = new CommandObjectNode(type, shape, spec);
+        var descriptor = new CommandObjectNode(type, shape, spec, CommandHandlerConventionSpecModel.CreateDefault());
         descriptors[type] = descriptor;
         return descriptor;
     }
 
     internal sealed record SpecEntry(
         Type OwnerType,
-        IPropertyShape Property,
-        IPropertyShape ValueProperty,
-        OptionSpecAttribute? Option,
-        ArgumentSpecAttribute? Argument,
-        DirectiveSpecAttribute? Directive);
+        IPropertyShape SpecProperty,
+        IPropertyShape TargetProperty,
+        OptionSpecModel? Option,
+        ArgumentSpecModel? Argument,
+        DirectiveSpecModel? Directive);
+
+    internal sealed record SpecMemberEntry(string DisplayName, IPropertyShape SpecProperty);
+
+    internal sealed record ParentAccessorEntry(Type ParentType, IPropertyShape Property);
 }

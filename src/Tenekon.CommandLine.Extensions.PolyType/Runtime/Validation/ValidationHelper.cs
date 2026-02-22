@@ -27,19 +27,16 @@ internal static class ValidationHelper
             });
 
         if (!string.IsNullOrWhiteSpace(pattern))
-        {
-            var regex = new Regex(pattern, RegexOptions.Compiled);
             option.Validators.Add(result =>
             {
                 var values = result.Tokens.Select(token => token.Value).ToArray();
                 foreach (var value in values)
                     if (!Regex.IsMatch(value, pattern))
                     {
-                        result.AddError(message ?? $"Value '{value}' does not match pattern '{pattern}'.");
+                        result.AddError(message ?? LocalizationResources.ValueDoesNotMatchPattern(value, pattern));
                         return;
                     }
             });
-        }
     }
 
     public static void Apply(
@@ -70,7 +67,7 @@ internal static class ValidationHelper
                 foreach (var value in values)
                     if (!regex.IsMatch(value))
                     {
-                        result.AddError(message ?? $"Value '{value}' does not match pattern '{pattern}'.");
+                        result.AddError(message ?? LocalizationResources.ValueDoesNotMatchPattern(value, pattern));
                         return;
                     }
             });
@@ -84,63 +81,63 @@ internal static class ValidationHelper
         if (rules.HasFlag(ValidationRules.ExistingFile))
             if (!fileSystem.File.FileExists(value))
             {
-                error = $"File does not exist: '{value}'.";
+                error = LocalizationResources.FileDoesNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.NonExistingFile))
             if (fileSystem.File.FileExists(value))
             {
-                error = $"File must not exist: '{value}'.";
+                error = LocalizationResources.FileMustNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.ExistingDirectory))
             if (!fileSystem.Directory.DirectoryExists(value))
             {
-                error = $"Directory does not exist: '{value}'.";
+                error = LocalizationResources.DirectoryDoesNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.NonExistingDirectory))
             if (fileSystem.Directory.DirectoryExists(value))
             {
-                error = $"Directory must not exist: '{value}'.";
+                error = LocalizationResources.DirectoryMustNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.ExistingFileOrDirectory))
             if (!fileSystem.File.FileExists(value) && !fileSystem.Directory.DirectoryExists(value))
             {
-                error = $"File or directory does not exist: '{value}'.";
+                error = LocalizationResources.FileOrDirectoryDoesNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.NonExistingFileOrDirectory))
             if (fileSystem.File.FileExists(value) || fileSystem.Directory.DirectoryExists(value))
             {
-                error = $"File or directory must not exist: '{value}'.";
+                error = LocalizationResources.FileOrDirectoryMustNotExist(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.LegalPath))
             if (value.IndexOfAny(fileSystem.Path.GetInvalidPathChars()) >= 0)
             {
-                error = $"Invalid path: '{value}'.";
+                error = LocalizationResources.InvalidPath(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.LegalFileName))
             if (value.IndexOfAny(fileSystem.Path.GetInvalidFileNameChars()) >= 0)
             {
-                error = $"Invalid file name: '{value}'.";
+                error = LocalizationResources.InvalidFileName(value);
                 return false;
             }
 
         if (rules.HasFlag(ValidationRules.LegalUri))
             if (!Uri.TryCreate(value, UriKind.Absolute, out _))
             {
-                error = $"Invalid URI: '{value}'.";
+                error = LocalizationResources.InvalidUri(value);
                 return false;
             }
 
@@ -148,7 +145,7 @@ internal static class ValidationHelper
             if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
                 || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
             {
-                error = $"Invalid URL: '{value}'.";
+                error = LocalizationResources.InvalidUrl(value);
                 return false;
             }
 

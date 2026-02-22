@@ -3,7 +3,7 @@ using PolyType.Abstractions;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Model;
 
-internal static class CommandModelBuilder
+internal static class CommandModelFactory
 {
     public static CommandModel BuildFromObject(
         IObjectTypeShape? commandTypeShape,

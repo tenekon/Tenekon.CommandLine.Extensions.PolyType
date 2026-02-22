@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
-using Tenekon.CommandLine.Extensions.PolyType.Runtime;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
 using Tenekon.CommandLine.Extensions.PolyType.Tests.Fixtures;
 using Tenekon.CommandLine.Extensions.PolyType.Tests.Infrastructure;

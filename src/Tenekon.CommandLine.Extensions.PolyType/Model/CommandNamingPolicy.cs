@@ -39,16 +39,16 @@ internal sealed class CommandNamingPolicy(
         "CliCommandDirective", "CommandDirective", "CliDirective"
     ];
 
-    private readonly HashSet<string> _commandNames = new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _commandNames = new(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _optionNames = new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _optionNames = new(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _argumentNames = new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _argumentNames = new(StringComparer.Ordinal);
 
     private readonly HashSet<string> _directiveNames = parent?._directiveNames
         ?? new HashSet<string>(StringComparer.Ordinal);
 
-    private readonly HashSet<string> _aliases = new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
 
     private readonly NameAutoGenerate _nameAutoGenerate = nameAutoGenerate
         ?? parent?._nameAutoGenerate ?? NameAutoGenerate.All;

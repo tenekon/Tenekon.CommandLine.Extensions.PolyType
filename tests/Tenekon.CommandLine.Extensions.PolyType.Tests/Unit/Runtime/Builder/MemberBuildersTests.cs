@@ -15,7 +15,7 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OptionSpecCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(OptionSpecCommand.Values));
-        var spec = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!;
+        var spec = OptionSpecModel.FromAttribute(property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new OptionMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -40,7 +40,7 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OptionDefaultCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(OptionDefaultCommand.Name));
-        var spec = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!;
+        var spec = OptionSpecModel.FromAttribute(property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new OptionMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -61,7 +61,7 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OptionDefaultCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(OptionDefaultCommand.Name));
-        var spec = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!;
+        var spec = OptionSpecModel.FromAttribute(property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new OptionMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -81,7 +81,7 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ValidationCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(ValidationCommand.Option));
-        var spec = property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!;
+        var spec = OptionSpecModel.FromAttribute(property.AttributeProvider.GetCustomAttribute<OptionSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new OptionMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -98,7 +98,8 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ArgumentSpecCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(ArgumentSpecCommand.Value));
-        var spec = property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!;
+        var spec = ArgumentSpecModel.FromAttribute(
+            property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new ArgumentMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -115,7 +116,8 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ArgumentSpecCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(ArgumentSpecCommand.Value));
-        var spec = property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!;
+        var spec = ArgumentSpecModel.FromAttribute(
+            property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new ArgumentMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -135,7 +137,8 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ArgumentEnumerableCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(ArgumentEnumerableCommand.Items));
-        var spec = property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!;
+        var spec = ArgumentSpecModel.FromAttribute(
+            property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new ArgumentMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -150,7 +153,8 @@ public class MemberBuildersTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<ValidationCommand>();
         var property = shape.Properties.First(p => p.Name == nameof(ValidationCommand.Argument));
-        var spec = property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!;
+        var spec = ArgumentSpecModel.FromAttribute(
+            property.AttributeProvider.GetCustomAttribute<ArgumentSpecAttribute>()!);
         var namer = TestNamingPolicy.CreateDefault();
 
         var builder = new ArgumentMemberBuilder(property, property, spec, namer, new PhysicalFileSystem());
@@ -170,19 +174,22 @@ public class MemberBuildersTests
         var command = new RootCommand();
 
         var debugProperty = shape.Properties.First(p => p.Name == nameof(DirectiveCommand.Debug));
-        var debugSpec = debugProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!;
+        var debugSpec = DirectiveSpecModel.FromAttribute(
+            debugProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!);
         var debugBuilder = new DirectiveMemberBuilder(debugProperty, debugSpec, namer);
         var debugResult = debugBuilder.Build();
         command.Add(debugResult!.Directive);
 
         var traceProperty = shape.Properties.First(p => p.Name == nameof(DirectiveCommand.Trace));
-        var traceSpec = traceProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!;
+        var traceSpec = DirectiveSpecModel.FromAttribute(
+            traceProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!);
         var traceBuilder = new DirectiveMemberBuilder(traceProperty, traceSpec, namer);
         var traceResult = traceBuilder.Build();
         command.Add(traceResult!.Directive);
 
         var tagsProperty = shape.Properties.First(p => p.Name == nameof(DirectiveCommand.Tags));
-        var tagsSpec = tagsProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!;
+        var tagsSpec = DirectiveSpecModel.FromAttribute(
+            tagsProperty.AttributeProvider.GetCustomAttribute<DirectiveSpecAttribute>()!);
         var tagsBuilder = new DirectiveMemberBuilder(tagsProperty, tagsSpec, namer);
         var tagsResult = tagsBuilder.Build();
         command.Add(tagsResult!.Directive);

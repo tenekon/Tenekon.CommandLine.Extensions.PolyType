@@ -11,7 +11,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<MethodRootCommand>();
 
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var root = (CommandObjectNode)definition.Graph.RootNode;
 
         root.MethodChildren.Count.ShouldBe(expected: 1);
@@ -29,7 +29,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<StaticMethodCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<InvalidMethodParentCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OverloadMissingNameCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<OverloadNamedOkCommand>();
 
-        var model = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var model = CommandModelFactory.BuildFromObject(shape, shape.Provider);
 
         var root = (CommandObjectNode)model.Graph.RootNode;
         root.MethodChildren.Count.ShouldBe(expected: 2);
@@ -64,7 +64,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<InterfaceMethodCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<GenericMethodCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 
     [Fact]
@@ -80,6 +80,6 @@ public class MethodCommandBuilderTests
     {
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<GenericBaseDerivedCommand>();
 
-        Should.Throw<InvalidOperationException>(() => CommandModelBuilder.BuildFromObject(shape, shape.Provider));
+        Should.Throw<InvalidOperationException>(() => CommandModelFactory.BuildFromObject(shape, shape.Provider));
     }
 }

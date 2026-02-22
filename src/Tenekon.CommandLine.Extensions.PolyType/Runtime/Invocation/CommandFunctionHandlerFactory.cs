@@ -22,35 +22,33 @@ internal static class CommandFunctionHandlerFactory
         var functionType = functionShape.Type;
         var invoker = CreateInvoker(functionShape, parameterBindings, functionType);
 
-        Func<ParseResult, ICommandServiceResolver?, CancellationToken, Task<int>> invokeAsync =
-            async (parseResult, serviceResolver, cancellationToken) =>
-            {
-                serviceResolver ??= bindingContext.CurrentServiceResolver ?? bindingContext.DefaultServiceResolver;
-                var context = bindingContext.CreateRuntimeContext(parseResult, serviceResolver);
+        return new CommandHandler(Invoke, InvokeAsync, functionShape.IsAsync);
 
-                if (!bindingContext.TryResolveFunctionInstance(
-                        functionShape,
-                        context.FunctionResolver,
-                        out var instance) || instance is null)
-                    throw new InvalidOperationException(
-                        $"Function instance is not registered for '{functionType.FullName}'.");
-
-                if (settings.ShowHelpOnEmptyCommand && context.IsEmptyCommand())
-                {
-                    context.ShowHelp();
-                    return 0;
-                }
-
-                return await invoker(instance, context, cancellationToken, serviceResolver)
-                    .ConfigureAwait(continueOnCapturedContext: false);
-            };
-
-        Func<ParseResult, ICommandServiceResolver?, int> invoke = (parseResult, serviceResolver) =>
+        async Task<int> InvokeAsync(
+            ParseResult parseResult,
+            ICommandServiceResolver? serviceResolver,
+            CancellationToken cancellationToken)
         {
-            return invokeAsync(parseResult, serviceResolver, CancellationToken.None).GetAwaiter().GetResult();
-        };
+            serviceResolver ??= bindingContext.CurrentServiceResolver ?? bindingContext.DefaultServiceResolver;
+            var context = bindingContext.CreateRuntimeContext(parseResult, serviceResolver);
 
-        return new CommandHandler(invoke, invokeAsync, functionShape.IsAsync);
+            if (!bindingContext.TryResolveFunctionInstance(functionShape, context.FunctionResolver, out var instance)
+                || instance is null)
+                throw new InvalidOperationException(
+                    $"Function instance is not registered for '{functionType.FullName}'.");
+
+            if (settings.ShowHelpOnEmptyCommand && context.IsEmptyCommand())
+            {
+                context.ShowHelp();
+                return 0;
+            }
+
+            return await invoker(instance, context, cancellationToken, serviceResolver)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        int Invoke(ParseResult parseResult, ICommandServiceResolver? serviceResolver) =>
+            InvokeAsync(parseResult, serviceResolver, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     private static bool IsSupportedReturn(IFunctionTypeShape functionShape)
@@ -127,8 +125,7 @@ internal static class CommandFunctionHandlerFactory
                 IParameterShape<TArgumentState, TParameterType> parameterShape,
                 object? state = null)
             {
-                var bindingState = (ParameterBindingState)state!;
-                var binding = bindingState.Binding;
+                var (binding, definitionType) = (ParameterBindingState)state!;
                 var setter = parameterShape.GetSetter();
 
                 ArgumentStateSetter<TArgumentState> handler = binding.Kind switch
@@ -167,7 +164,7 @@ internal static class CommandFunctionHandlerFactory
                         var bindingContext = context.BindingContext;
                         if (bindingContext.TryResolveParentInstance(
                                 context.ParseResult,
-                                bindingState.DefinitionType,
+                                definitionType,
                                 typeof(TParameterType),
                                 resolver,
                                 cancellationToken,

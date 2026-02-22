@@ -224,3 +224,22 @@ public partial class NoRunCommand
     [OptionSpec(Name = "option")]
     public string Option { get; set; } = "value";
 }
+
+[CommandSpec]
+[GenerateShape(IncludeMethods = MethodShapeFlags.PublicInstance)]
+public partial class ExecuteAndExecuteAsyncCommand
+{
+    [OptionSpec(Name = "trigger")]
+    public bool Trigger { get; set; }
+
+    public void Execute()
+    {
+        HandlerLog.RunCount++;
+    }
+
+    public Task ExecuteAsync()
+    {
+        HandlerLog.RunAsyncCount++;
+        return Task.CompletedTask;
+    }
+}

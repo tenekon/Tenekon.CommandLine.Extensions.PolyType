@@ -1,5 +1,6 @@
 using System.CommandLine;
 using PolyType.Abstractions;
+using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Binding;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
@@ -9,17 +10,41 @@ internal static class CommandHandlerFactory
     public static CommandHandler? TryCreateHandler(
         IObjectTypeShape shape,
         BindingContext bindingContext,
-        CommandRuntimeSettings settings)
+        CommandRuntimeSettings settings,
+        CommandHandlerConventionSpecModel? convention)
     {
+        var effectiveConvention = convention ?? CommandHandlerConventionSpecModel.CreateDefault();
+        if (effectiveConvention.Disabled) return null;
+
         var methods = shape.Methods;
-        var (asyncMethod, asyncInfo) = FindMethod(methods, "RunAsync", isAsync: true);
-        var (syncMethod, syncInfo) = FindMethod(methods, "Run", isAsync: false);
+        IMethodShape? selected = null;
+        MethodInvocationInfo? info = null;
 
-        var selected = asyncMethod ?? syncMethod;
-        if (selected is null) return CreateDefaultHelpHandler(bindingContext, settings);
+        foreach (var name in effectiveConvention.MethodNames)
+        {
+            if (string.IsNullOrWhiteSpace(name)) continue;
 
-        var info = asyncMethod is not null ? asyncInfo : syncInfo;
-        if (info is null) return CreateDefaultHelpHandler(bindingContext, settings);
+            var (asyncMethod, asyncInfo) = FindMethod(methods, name, isAsync: true);
+            var (syncMethod, syncInfo) = FindMethod(methods, name, isAsync: false);
+
+            if (effectiveConvention.PreferAsync)
+            {
+                selected = asyncMethod ?? syncMethod;
+                info = asyncMethod is not null ? asyncInfo : syncInfo;
+            }
+            else
+            {
+                selected = syncMethod ?? asyncMethod;
+                info = syncMethod is not null ? syncInfo : asyncInfo;
+            }
+
+            if (selected is not null && info is not null) break;
+
+            selected = null;
+            info = null;
+        }
+
+        if (selected is null || info is null) return CreateDefaultHelpHandler(bindingContext, settings);
 
         var invoker = CreateInvoker(selected, info.Value, shape.Type);
 
@@ -50,7 +75,7 @@ internal static class CommandHandlerFactory
             return invokeAsync(parseResult, serviceResolver, CancellationToken.None).GetAwaiter().GetResult();
         };
 
-        return new CommandHandler(invoke, invokeAsync, asyncMethod is not null);
+        return new CommandHandler(invoke, invokeAsync, selected.IsAsync);
     }
 
     private static (IMethodShape? Method, MethodInvocationInfo? Info) FindMethod(

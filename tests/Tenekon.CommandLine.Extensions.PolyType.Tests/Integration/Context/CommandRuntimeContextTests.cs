@@ -86,7 +86,7 @@ public class CommandRuntimeContextTests
         var output = new StringWriter();
         var settings = new CommandRuntimeSettings { Output = output, Error = output };
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         var bindingContext = runtime.BindingContext;
         var graph = runtime.Graph;
@@ -101,7 +101,7 @@ public class CommandRuntimeContextTests
         var output = new StringWriter();
         var settings = new CommandRuntimeSettings { Output = output, Error = output };
         var shape = (IObjectTypeShape)TypeShapeResolver.Resolve<TCommand>();
-        var definition = CommandModelBuilder.BuildFromObject(shape, shape.Provider);
+        var definition = CommandModelFactory.BuildFromObject(shape, shape.Provider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         var parseResult = runtime.Graph.RootCommand.Parse(args);
         var context = runtime.BindingContext.CreateRuntimeContext(parseResult, serviceResolver: null);
@@ -116,7 +116,7 @@ public class CommandRuntimeContextTests
         var functionShape = shapeProvider.GetTypeShape(typeof(FunctionRootCommand)) as IFunctionTypeShape
             ?? throw new InvalidOperationException(
                 $"Function shape is missing for '{typeof(FunctionRootCommand).FullName}'.");
-        var definition = CommandModelBuilder.BuildFromFunction(functionShape, shapeProvider);
+        var definition = CommandModelFactory.BuildFromFunction(functionShape, shapeProvider);
         var runtime = CommandRuntimeBuilder.Build(definition, settings);
         runtime.BindingContext.FunctionRegistry.Set<FunctionRootCommand>(
             new FunctionRootCommand((_, _, _, _, _, _) => { }));

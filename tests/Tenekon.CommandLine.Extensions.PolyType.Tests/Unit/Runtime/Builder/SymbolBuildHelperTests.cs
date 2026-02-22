@@ -12,11 +12,12 @@ public class SymbolBuildHelperTests
     [Fact]
     public void CreateOption_AppliesAliasesAndShortForm()
     {
-        var spec = new OptionSpecAttribute
-        {
-            Alias = "alias",
-            Aliases = ["/alt"]
-        };
+        var spec = OptionSpecModel.FromAttribute(
+            new OptionSpecAttribute
+            {
+                Alias = "alias",
+                Aliases = ["/alt"]
+            });
         var namer = TestNamingPolicy.CreateDefault();
 
         var option = SymbolBuildHelper.CreateOption<string>(
@@ -35,7 +36,7 @@ public class SymbolBuildHelperTests
     [Fact]
     public void CreateArgument_RequiredString_SetsExactlyOneArity()
     {
-        var spec = new ArgumentSpecAttribute();
+        var spec = ArgumentSpecModel.FromAttribute(new ArgumentSpecAttribute());
         var namer = TestNamingPolicy.CreateDefault();
         var shape = GetShape(typeof(string));
 
@@ -53,7 +54,7 @@ public class SymbolBuildHelperTests
     [Fact]
     public void CreateArgument_RequiredEnumerable_SetsOneOrMoreArity()
     {
-        var spec = new ArgumentSpecAttribute();
+        var spec = ArgumentSpecModel.FromAttribute(new ArgumentSpecAttribute());
         var namer = TestNamingPolicy.CreateDefault();
         var shape = GetShape(typeof(string[]));
 

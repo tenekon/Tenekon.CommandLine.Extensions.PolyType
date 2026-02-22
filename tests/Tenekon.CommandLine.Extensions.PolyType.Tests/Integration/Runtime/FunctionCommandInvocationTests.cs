@@ -15,7 +15,7 @@ public class FunctionCommandInvocationTests
     public void Invoke_FunctionCommand_BindsValuesAndServices()
     {
         FunctionCommandLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -48,7 +48,7 @@ public class FunctionCommandInvocationTests
     public void Invoke_FunctionCommand_OverrideResolver_Wins()
     {
         FunctionCommandLog.Reset();
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();
@@ -141,7 +141,7 @@ public class FunctionCommandInvocationTests
     [Fact]
     public void Invoke_FunctionCommand_MissingInstance_Throws()
     {
-        var settings = new CommandRuntimeSettings { ShowHelpOnEmptyCommand = false };
+        var settings = new CommandRuntimeSettings();
         var services = new ServiceCollection();
         services.AddSingleton(new DiDependency("service"));
         var provider = services.BuildServiceProvider();

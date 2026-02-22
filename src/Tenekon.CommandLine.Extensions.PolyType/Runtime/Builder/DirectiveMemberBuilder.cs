@@ -2,13 +2,12 @@ using System.CommandLine;
 using PolyType.Abstractions;
 using Tenekon.CommandLine.Extensions.PolyType.Model;
 using Tenekon.CommandLine.Extensions.PolyType.Runtime.Invocation;
-using Tenekon.CommandLine.Extensions.PolyType.Spec;
 
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.Builder;
 
 internal sealed class DirectiveMemberBuilder(
     IPropertyShape propertyShape,
-    DirectiveSpecAttribute spec,
+    DirectiveSpecModel spec,
     CommandNamingPolicy namer)
 {
     public DirectiveBuildResult? Build()
@@ -16,7 +15,7 @@ internal sealed class DirectiveMemberBuilder(
         return (DirectiveBuildResult?)propertyShape.Accept(new BuilderVisitor(spec, namer));
     }
 
-    private sealed class BuilderVisitor(DirectiveSpecAttribute spec, CommandNamingPolicy namer) : TypeShapeVisitor
+    private sealed class BuilderVisitor(DirectiveSpecModel spec, CommandNamingPolicy namer) : TypeShapeVisitor
     {
         public override object? VisitProperty<TDeclaringType, TPropertyType>(
             IPropertyShape<TDeclaringType, TPropertyType> propertyShape,

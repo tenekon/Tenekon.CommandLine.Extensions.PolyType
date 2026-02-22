@@ -1,11 +1,23 @@
 namespace Tenekon.CommandLine.Extensions.PolyType.Runtime.FileSystem;
 
+/// <summary>
+/// File system implementation that delegates to <see cref="System.IO"/>.
+/// </summary>
 public sealed class PhysicalFileSystem : IFileSystem
 {
+    /// <summary>
+    /// Gets the file operations.
+    /// </summary>
     public IFileSystemFile File { get; } = new PhysicalFileSystemFile();
 
+    /// <summary>
+    /// Gets the directory operations.
+    /// </summary>
     public IFileSystemDirectory Directory { get; } = new PhysicalFileSystemDirectory();
 
+    /// <summary>
+    /// Gets the path operations.
+    /// </summary>
     public IFileSystemPath Path { get; } = new PhysicalFileSystemPath();
 
     private sealed class PhysicalFileSystemFile : IFileSystemFile
