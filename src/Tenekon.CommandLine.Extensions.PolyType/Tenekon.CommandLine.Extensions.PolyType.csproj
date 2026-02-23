@@ -11,7 +11,7 @@
         <IsPackable>true</IsPackable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageId>Tenekon.CommandLine.Extensions.PolyType</PackageId>
-        <Version>1.0.0-rc.3</Version>
+        <Version>1.0.0-rc.4</Version>
         <Authors>Tenekon authors and contributors</Authors>
         <Company>Tenekon</Company>
         <Description>An extension to System.CommandLine using PolyType: attribute-driven CLI definitions with fast, strongly-typed (trimming/aot-friendly) binding.</Description>
@@ -35,10 +35,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.Collections.Immutable" Version="8.0.0"/>
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.3"/>
         <PackageReference Include="PolyType" Version="1.1.1"/>
         <PackageReference Include="System.CommandLine" Version="2.0.3"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3"/>
         <PackageReference Include="Tenekon.MethodOverloads.SourceGenerator" Version="0.0.6-alpha.6">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
